@@ -13,6 +13,8 @@ export const App: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+  const lastScrollTimeRef = useRef<number>(0);
 
   const activeProperty = PROPERTIES[currentIndex];
   const total = PROPERTIES.length;
@@ -30,12 +32,51 @@ export const App: React.FC = () => {
     setCurrentIndex(index);
   }, []);
 
+  // Wheel / Trackpad Scroll Navigation (Cinematic Throttle)
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      // Prevent default page scroll behavior if any
+      e.preventDefault();
+
+      const now = Date.now();
+      // 750ms cooldown to match the 650ms animation curve and prevent runaway skips
+      if (now - lastScrollTimeRef.current < 750) return;
+
+      const deltaY = e.deltaY;
+      const deltaX = e.deltaX;
+
+      // Check vertical or horizontal scroll intent
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (Math.abs(deltaY) > 20) {
+          lastScrollTimeRef.current = now;
+          if (deltaY > 0) {
+            handleNext();
+          } else {
+            handlePrev();
+          }
+        }
+      } else {
+        if (Math.abs(deltaX) > 20) {
+          lastScrollTimeRef.current = now;
+          if (deltaX > 0) {
+            handleNext();
+          } else {
+            handlePrev();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [handleNext, handlePrev]);
+
   // Keyboard navigation (Arrow keys)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         handleNext();
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         handlePrev();
       }
     };
@@ -51,24 +92,45 @@ export const App: React.FC = () => {
     setMouseOffset({ x, y });
   }, []);
 
-  // Touch Swipe Handlers for mobile
+  // Touch Swipe Handlers for mobile (Vertical & Horizontal gestures)
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
     const deltaX = touchEndX - touchStartXRef.current;
-    
-    if (Math.abs(deltaX) > 45) {
-      if (deltaX < 0) {
-        handleNext();
-      } else {
-        handlePrev();
+    const deltaY = touchEndY - touchStartYRef.current;
+
+    const now = Date.now();
+    if (now - lastScrollTimeRef.current < 650) return;
+
+    // Detect primary swipe direction
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (Math.abs(deltaX) > 35) {
+        lastScrollTimeRef.current = now;
+        if (deltaX < 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+      }
+    } else {
+      if (Math.abs(deltaY) > 35) {
+        lastScrollTimeRef.current = now;
+        if (deltaY < 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
       }
     }
+
     touchStartXRef.current = null;
+    touchStartYRef.current = null;
   };
 
   return (
@@ -116,8 +178,8 @@ export const App: React.FC = () => {
           />
         </div>
 
-        {/* Bottom Center: Minimal Scroll Indicator (Hidden on compact screens) */}
-        <div className="hidden lg:block">
+        {/* Bottom Center: Minimal Scroll Indicator */}
+        <div className="hidden lg:block pointer-events-auto cursor-pointer" onClick={handleNext}>
           <ScrollIndicator currentProperty={activeProperty} />
         </div>
 
