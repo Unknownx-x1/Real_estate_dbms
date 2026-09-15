@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   Layers,
   Edit2,
+  Trash2,
 } from 'lucide-react';
 
 interface AgentDashboardProps {
@@ -46,6 +47,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   // Modal states
   const [isNewListingOpen, setIsNewListingOpen] = useState(false);
   const [editingListing, setEditingListing] = useState<ListingRecord | null>(null);
+  const [confirmDeleteListing, setConfirmDeleteListing] = useState<ListingRecord | null>(null);
   const [confirmAcceptOffer, setConfirmAcceptOffer] = useState<OfferRecord | null>(null);
 
   // Form states for new listing
@@ -56,9 +58,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   const [newArea, setNewArea] = useState('');
   const [newImage, setNewImage] = useState('');
 
-  // Form states for price update
+  // Form states for full listing update
+  const [editName, setEditName] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [editType, setEditType] = useState('Brutalist Cliff Residence');
   const [editPrice, setEditPrice] = useState('');
+  const [editArea, setEditArea] = useState('');
   const [editStatus, setEditStatus] = useState<ListingRecord['status']>('ACTIVE');
+  const [editImage, setEditImage] = useState('');
 
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -116,18 +123,45 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     await loadAllData();
   };
 
-  // Handle Price / Status Update
+  const openEditModal = (listing: ListingRecord) => {
+    setEditingListing(listing);
+    setEditName(listing.propertyName);
+    setEditLocation(listing.location);
+    setEditType(listing.propertyType);
+    setEditPrice(listing.listPrice.toString());
+    setEditArea(listing.areaSqFt.toString());
+    setEditStatus(listing.status);
+    setEditImage(listing.image || '');
+  };
+
+  // Handle Full Property Specification Update
   const handleUpdateListing = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingListing) return;
 
     await apiClient.updateListing(editingListing.listingId, {
+      propertyName: editName,
+      location: editLocation,
+      propertyType: editType,
       listPrice: Number(editPrice),
+      areaSqFt: Number(editArea),
       status: editStatus,
+      image: editImage,
     });
 
     setEditingListing(null);
-    showNotification(`Inventory specifications for ${editingListing.propertyName} updated.`);
+    showNotification(`Architectural specifications for "${editName}" updated successfully.`);
+    await loadAllData();
+  };
+
+  // Handle De-list / Delete Residence
+  const handleDeleteListing = async () => {
+    if (!confirmDeleteListing) return;
+
+    await apiClient.deleteListing(confirmDeleteListing.listingId);
+    const deletedTitle = confirmDeleteListing.propertyName;
+    setConfirmDeleteListing(null);
+    showNotification(`Residence "${deletedTitle}" de-listed and deleted from DBMS repository.`);
     await loadAllData();
   };
 
@@ -402,17 +436,24 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                         </span>
                       </td>
                       <td className="p-4 text-right">
-                        <button
-                          onClick={() => {
-                            setEditingListing(l);
-                            setEditPrice(l.listPrice.toString());
-                            setEditStatus(l.status);
-                          }}
-                          className="px-2.5 py-1 border border-white/20 hover:border-white text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1 ml-auto"
-                        >
-                          <Edit2 className="w-2.5 h-2.5" />
-                          <span>REVISE</span>
-                        </button>
+                        <div className="flex items-center justify-end space-x-2">
+                          <button
+                            onClick={() => openEditModal(l)}
+                            className="px-2.5 py-1 border border-white/20 hover:border-white text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1"
+                            title="Revise residence specifications"
+                          >
+                            <Edit2 className="w-2.5 h-2.5" />
+                            <span>REVISE</span>
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteListing(l)}
+                            className="px-2 py-1 border border-white/20 hover:border-rose-400 text-rose-400 hover:bg-rose-950/30 text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1"
+                            title="De-list and delete residence"
+                          >
+                            <Trash2 className="w-2.5 h-2.5" />
+                            <span>DELETE</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -742,11 +783,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: REVISE PRICE & STATUS */}
+      {/* MODAL: REVISE PROPERTY MONOGRAPH (UPDATE) */}
       {/* ========================================================================= */}
       {editingListing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
-          <div className="relative w-full max-w-md bg-[#1A1C1E] text-[#D8D2C6] border border-white/20 p-8 shadow-2xl font-mono">
+          <div className="relative w-full max-w-lg bg-[#1A1C1E] text-[#D8D2C6] border border-white/20 p-8 shadow-2xl font-mono">
             <button
               onClick={() => setEditingListing(null)}
               className="absolute top-6 right-6 p-1.5 border border-white/20 hover:border-white"
@@ -754,49 +795,196 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="text-xl font-display uppercase tracking-tight text-white mb-1">
-              REVISE INVENTORY RECORD
+            <div className="flex items-center space-x-2 text-[9px] uppercase tracking-super-wide opacity-60 mb-2">
+              <Edit2 className="w-3.5 h-3.5" />
+              <span>INVENTORY SPECIFICATION UPDATE</span>
+            </div>
+
+            <h3 className="text-2xl font-display uppercase tracking-tight text-white mb-2">
+              REVISE RESIDENCE MONOGRAPH
             </h3>
-            <p className="text-xs font-sans opacity-70 mb-5">{editingListing.propertyName}</p>
+            <p className="text-xs font-sans opacity-70 mb-5">
+              Update pricing, availability status, architectural metadata, and archival imagery in real-time.
+            </p>
 
             <form onSubmit={handleUpdateListing} className="space-y-4">
               <div>
                 <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
-                  REVISED ASKING PRICE (USD)
+                  RESIDENCE TITLE / DESCRIPTION
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  value={editPrice}
-                  onChange={(e) => setEditPrice(e.target.value)}
-                  className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none font-bold"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
                 />
               </div>
 
-              <div>
-                <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
-                  LISTING STATUS
-                </label>
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value as any)}
-                  className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-[#D8D2C6]"
-                >
-                  <option value="ACTIVE">ACTIVE (Accepting Tenders)</option>
-                  <option value="PENDING">PENDING (In Negotiation)</option>
-                  <option value="SOLD">SOLD (Settled)</option>
-                  <option value="INACTIVE">INACTIVE (Withdrawn)</option>
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                    LOCATION
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editLocation}
+                    onChange={(e) => setEditLocation(e.target.value)}
+                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                    ARCHITECTURAL TYPOLOGY
+                  </label>
+                  <select
+                    value={editType}
+                    onChange={(e) => setEditType(e.target.value)}
+                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-[#D8D2C6]"
+                  >
+                    <option value="Brutalist Cliff Residence">Brutalist Cliff Residence</option>
+                    <option value="Geometric Monolith Villa">Geometric Monolith Villa</option>
+                    <option value="Nordic Earth Pavilion">Nordic Earth Pavilion</option>
+                    <option value="Desert Rammed-Earth Retreat">Desert Rammed-Earth Retreat</option>
+                  </select>
+                </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#D8D2C6] text-[#1A1C1E] font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity"
-              >
-                <span>APPLY REVISION</span>
-                <CheckCircle className="w-3.5 h-3.5" />
-              </button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                    ASKING PRICE (USD)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="500000"
+                    step="50000"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none font-bold text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                    INTERIOR AREA (SQ FT)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="500"
+                    value={editArea}
+                    onChange={(e) => setEditArea(e.target.value)}
+                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                    INVENTORY STATUS
+                  </label>
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as any)}
+                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-[#D8D2C6]"
+                  >
+                    <option value="ACTIVE">ACTIVE (Accepting Tenders)</option>
+                    <option value="PENDING">PENDING (In Negotiation)</option>
+                    <option value="SOLD">SOLD (Settled Contract)</option>
+                    <option value="RENTED">RENTED (Leased)</option>
+                    <option value="INACTIVE">INACTIVE (Withdrawn)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                    HERO IMAGE URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editImage}
+                    onChange={(e) => setEditImage(e.target.value)}
+                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-white/70"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => setEditingListing(null)}
+                  className="w-1/3 py-3 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors"
+                >
+                  DISCARD
+                </button>
+                <button
+                  type="submit"
+                  className="w-2/3 py-3 bg-[#D8D2C6] text-[#1A1C1E] font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity"
+                >
+                  <span>COMMIT SPECIFICATION REVISION</span>
+                  <CheckCircle className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: CONFIRM DE-LIST & DELETE RESIDENCE */}
+      {/* ========================================================================= */}
+      {confirmDeleteListing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-md bg-[#141517] text-[#D8D2C6] border border-rose-500/40 p-8 shadow-2xl font-mono">
+            <button
+              onClick={() => setConfirmDeleteListing(null)}
+              className="absolute top-6 right-6 p-1.5 border border-white/20 hover:border-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center space-x-2 text-[9px] uppercase tracking-super-wide text-rose-400 mb-2 font-bold">
+              <Trash2 className="w-4 h-4 text-rose-400" />
+              <span>PERMANENT CONSIGNMENT DELETION</span>
+            </div>
+
+            <h3 className="text-2xl font-display uppercase tracking-tight text-white mb-2">
+              DE-LIST RESIDENCE
+            </h3>
+
+            <p className="text-xs font-sans opacity-80 mb-6">
+              Are you certain you wish to delete this property from the Monolith catalogue and DBMS repository?
+            </p>
+
+            <div className="p-4 bg-black/60 border border-white/10 text-xs mb-6 space-y-1">
+              <div className="text-white font-bold text-sm">{confirmDeleteListing.propertyName}</div>
+              <div className="text-[10px] opacity-60">{confirmDeleteListing.location} • {confirmDeleteListing.propertyType}</div>
+              <div className="text-emerald-400 font-bold">${confirmDeleteListing.listPrice.toLocaleString()}</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteListing(null)}
+                className="py-3 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors"
+              >
+                CANCEL
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDeleteListing}
+                className="py-3 bg-rose-600 text-white font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-rose-500 transition-colors shadow-lg"
+              >
+                <span>CONFIRM DELETION</span>
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       )}

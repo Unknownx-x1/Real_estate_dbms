@@ -376,6 +376,17 @@ export const apiClient = {
     return null;
   },
 
+  async deleteListing(listingId: number): Promise<boolean> {
+    try {
+      await fetch(`${API_BASE_URL}/listings/${listingId}`, {
+        method: 'DELETE',
+      });
+    } catch {}
+
+    mockListings = mockListings.filter((l) => l.listingId !== listingId);
+    return true;
+  },
+
   // --- OFFERS ---
   async getOffers(filter?: { customerId?: number; listingId?: number }): Promise<OfferRecord[]> {
     try {
