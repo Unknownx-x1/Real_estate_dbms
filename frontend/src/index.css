@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+}
+
+.perspective-stage {
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Subtle architectural pedestal shadow */
+.pedestal-shadow {
+  box-shadow: 0 45px 70px -15px rgba(0, 0, 0, 0.4), 0 25px 35px -10px rgba(0, 0, 0, 0.25);
+}
+
+/* Hairline borders */
+.border-hairline {
+  border-width: 0.75px;
+}
