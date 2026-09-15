@@ -13,11 +13,13 @@ import { CurationSection } from './components/CurationSection';
 import { AboutSection } from './components/AboutSection';
 import { EditorialFooter } from './components/EditorialFooter';
 import { IndexModal } from './components/IndexModal';
+import { SignInModal } from './components/SignInModal';
 
 export const App: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const [isIndexOpen, setIsIndexOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
   const lastHorizontalScrollTimeRef = useRef<number>(0);
   const pointerStartXRef = useRef<number | null>(null);
@@ -127,6 +129,7 @@ export const App: React.FC = () => {
       <HeaderNav 
         currentProperty={activeProperty} 
         onOpenIndex={() => setIsIndexOpen(true)}
+        onOpenSignIn={() => setIsSignInOpen(true)}
       />
 
       {/* 3. Master Archive Index Modal */}
@@ -136,6 +139,13 @@ export const App: React.FC = () => {
         properties={PROPERTIES}
         currentProperty={activeProperty}
         onSelectProperty={handleSelectProperty}
+      />
+
+      {/* 4. Private Patron & Atelier Sign In Modal */}
+      <SignInModal
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+        currentProperty={activeProperty}
       />
 
       {/* ========================================================================= */}

@@ -5,6 +5,7 @@ import type { PropertyItem } from '../types/property';
 interface HeaderNavProps {
   currentProperty: PropertyItem;
   onOpenIndex?: () => void;
+  onOpenSignIn?: () => void;
 }
 
 /**
@@ -12,7 +13,7 @@ interface HeaderNavProps {
  * Small, uppercase, precise, widely tracked typography.
  * Clicking items smoothly navigates to corresponding sections.
  */
-export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenIndex }) => {
+export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenIndex, onOpenSignIn }) => {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -82,7 +83,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenInd
         </button>
 
         <button 
-          onClick={onOpenIndex}
+          onClick={onOpenSignIn}
           className="text-[10px] uppercase tracking-widest-editorial transition-opacity hover:opacity-100"
           style={{ 
             color: currentProperty.textTone,
