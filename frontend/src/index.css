@@ -9,13 +9,36 @@
     -moz-osx-font-smoothing: grayscale;
   }
   
-  html, body {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
     margin: 0;
     padding: 0;
-    height: 100%;
     width: 100%;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
+}
+
+/* Custom architectural minimalist scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .perspective-stage {
