@@ -1,20 +1,137 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { PropertyItem } from '../types/property';
-import { Rotate3d, Play, Pause } from 'lucide-react';
+import { Rotate3d, Play, Pause, Sun, Moon } from 'lucide-react';
 
 interface ThreeDVillaViewerProps {
   currentProperty: PropertyItem;
 }
 
+/**
+ * Helper to generate procedural architectural textures using HTML5 Canvas
+ */
+function createWoodTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#8a5937';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Planks
+  const plankHeight = 32;
+  for (let y = 0; y < 512; y += plankHeight) {
+    const tone = 120 + Math.floor(Math.random() * 40);
+    ctx.fillStyle = `rgb(${tone + 30}, ${tone - 10}, ${tone - 40})`;
+    ctx.fillRect(0, y, 512, plankHeight - 2);
+
+    // Fine wood grain lines
+    ctx.strokeStyle = 'rgba(40, 20, 10, 0.2)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 6; i++) {
+      const lineY = y + Math.random() * (plankHeight - 4);
+      ctx.beginPath();
+      ctx.moveTo(0, lineY);
+      ctx.lineTo(512, lineY);
+      ctx.stroke();
+    }
+
+    // Seam line
+    ctx.fillStyle = 'rgba(20, 10, 5, 0.7)';
+    ctx.fillRect(0, y + plankHeight - 2, 512, 2);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createConcreteTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#c7c2b8';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Concrete noise
+  const imgData = ctx.getImageData(0, 0, 512, 512);
+  const data = imgData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const noise = (Math.random() - 0.5) * 26;
+    data[i] = Math.min(255, Math.max(0, data[i] + noise));
+    data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
+    data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  // Formwork board lines
+  ctx.strokeStyle = 'rgba(70, 65, 60, 0.35)';
+  ctx.lineWidth = 2;
+  for (let y = 64; y < 512; y += 64) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(512, y);
+    ctx.stroke();
+
+    // Formwork tie-rod holes
+    ctx.fillStyle = 'rgba(40, 38, 35, 0.4)';
+    for (let x = 48; x < 512; x += 96) {
+      ctx.beginPath();
+      ctx.arc(x, y - 12, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
+function createPaverTileTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#d6d1c7';
+  ctx.fillRect(0, 0, 512, 512);
+
+  const tileSize = 64;
+  ctx.strokeStyle = 'rgba(80, 75, 70, 0.4)';
+  ctx.lineWidth = 2;
+
+  for (let x = 0; x < 512; x += tileSize) {
+    for (let y = 0; y < 512; y += tileSize) {
+      const shade = (Math.random() - 0.5) * 15;
+      ctx.fillStyle = `rgba(0, 0, 0, ${Math.abs(shade) / 255})`;
+      ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+      ctx.strokeRect(x, y, tileSize, tileSize);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(4, 4);
+  return texture;
+}
+
+/**
+ * Photorealistic 3D Modern Architectural Villa Simulation
+ */
 export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentProperty }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [isAutoRotate, setIsAutoRotate] = useState(true);
+  const [isNightMode, setIsNightMode] = useState(false);
   const [activeCameraView, setActiveCameraView] = useState<'isometric' | 'cantilever' | 'elevation'>('isometric');
 
   const controlsRef = useRef<{
     setCameraPreset: (preset: 'isometric' | 'cantilever' | 'elevation') => void;
-    toggleAutoRotate: () => void;
   } | null>(null);
 
   useEffect(() => {
@@ -27,9 +144,9 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
     // 1. Scene & Camera
     const scene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(18, 14, 18);
-    camera.lookAt(0, 2, 0);
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 120);
+    camera.position.set(22, 16, 22);
+    camera.lookAt(0, 2.5, 0);
 
     // 2. Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -38,251 +155,353 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = isNightMode ? 1.4 : 1.15;
 
     container.appendChild(renderer.domElement);
 
-    // 3. Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff8f0, 1.2);
+    // 3. Textures
+    const concreteTex = createConcreteTexture();
+    const woodTex = createWoodTexture();
+    const paverTex = createPaverTileTexture();
+
+    // 4. Lighting Setup
+    const ambientLight = new THREE.AmbientLight(
+      isNightMode ? 0x223355 : 0xfffbf4,
+      isNightMode ? 0.6 : 1.1
+    );
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff0dd, 2.6);
-    sunLight.position.set(20, 28, 14);
+    const sunLight = new THREE.DirectionalLight(
+      isNightMode ? 0x6688cc : 0xfff4e2,
+      isNightMode ? 0.8 : 2.8
+    );
+    sunLight.position.set(24, 32, 18);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
     sunLight.shadow.mapSize.height = 2048;
     sunLight.shadow.camera.near = 0.5;
-    sunLight.shadow.camera.far = 60;
-    sunLight.shadow.camera.left = -16;
-    sunLight.shadow.camera.right = 16;
-    sunLight.shadow.camera.top = 16;
-    sunLight.shadow.camera.bottom = -16;
-    sunLight.shadow.bias = -0.0005;
+    sunLight.shadow.camera.far = 80;
+    sunLight.shadow.camera.left = -20;
+    sunLight.shadow.camera.right = 20;
+    sunLight.shadow.camera.top = 20;
+    sunLight.shadow.camera.bottom = -20;
+    sunLight.shadow.bias = -0.0004;
     scene.add(sunLight);
 
-    // Soft sky fill
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444455, 0.8);
-    scene.add(hemiLight);
+    // Warm Interior & Exterior Landscape Sconces
+    const interiorLights: THREE.PointLight[] = [];
+    const lightPositions = [
+      [0, 2.4, 1, 3.5, 14],     // Ground Living
+      [-3, 2.4, -2, 2.5, 10],   // Ground Dining
+      [2, 6.0, 1.5, 3.0, 12],   // Upper Master Cantilever
+      [-3.5, 6.0, 0, 2.0, 10],  // Upper Studio
+      [4.5, 0.4, 4.5, 2.0, 8],  // Underwater Pool Light 1
+      [7.5, 0.4, 4.5, 2.0, 8],  // Underwater Pool Light 2
+    ];
 
-    // Interior Warm Glow
-    const interiorLight1 = new THREE.PointLight(0xffaa44, 3, 14);
-    interiorLight1.position.set(0, 2.2, 0);
-    scene.add(interiorLight1);
+    lightPositions.forEach(([x, y, z, intensity, dist]) => {
+      const isPool = y < 1;
+      const color = isPool ? 0x00d8ff : 0xffa944;
+      const pl = new THREE.PointLight(color, isNightMode ? intensity * 1.8 : intensity, dist);
+      pl.position.set(x, y, z);
+      scene.add(pl);
+      interiorLights.push(pl);
+    });
 
-    const interiorLight2 = new THREE.PointLight(0xffbb66, 2.5, 12);
-    interiorLight2.position.set(-2, 5.5, 1);
-    scene.add(interiorLight2);
-
-    // 4. Materials
-    const concreteMat = new THREE.MeshStandardMaterial({
-      color: 0xd8d3ca,
-      roughness: 0.75,
+    // 5. High-End Architectural Materials
+    const boardFormedConcreteMat = new THREE.MeshStandardMaterial({
+      map: concreteTex,
+      roughness: 0.8,
       metalness: 0.05,
     });
 
-    const darkBasaltMat = new THREE.MeshStandardMaterial({
-      color: 0x222428,
+    const darkBasaltCladdingMat = new THREE.MeshStandardMaterial({
+      color: 0x1f2226,
+      roughness: 0.5,
+      metalness: 0.25,
+    });
+
+    const warmWoodSlatMat = new THREE.MeshStandardMaterial({
+      map: woodTex,
       roughness: 0.6,
-      metalness: 0.2,
-    });
-
-    const woodDeckMat = new THREE.MeshStandardMaterial({
-      color: 0x9a6944,
-      roughness: 0.65,
       metalness: 0.05,
     });
 
-    const glassMat = new THREE.MeshStandardMaterial({
-      color: 0x99ccdd,
+    const paverFloorMat = new THREE.MeshStandardMaterial({
+      map: paverTex,
+      roughness: 0.7,
+      metalness: 0.05,
+    });
+
+    const lawnMat = new THREE.MeshStandardMaterial({
+      color: 0x3d5438,
+      roughness: 0.9,
+      metalness: 0.0,
+    });
+
+    const glassCurtainMat = new THREE.MeshPhysicalMaterial({
+      color: 0xaaccdd,
       transparent: true,
-      opacity: 0.38,
-      roughness: 0.1,
+      opacity: 0.35,
+      roughness: 0.05,
       metalness: 0.85,
+      transmission: 0.6,
+      ior: 1.52,
     });
 
     const poolWaterMat = new THREE.MeshStandardMaterial({
-      color: 0x1aa0b8,
-      roughness: 0.15,
-      metalness: 0.7,
+      color: 0x0ca6b9,
+      roughness: 0.08,
+      metalness: 0.8,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.86,
     });
 
-    const waterBaseMat = new THREE.MeshStandardMaterial({
-      color: 0x005577,
-      roughness: 0.5,
+    const darkSteelMullionMat = new THREE.MeshStandardMaterial({
+      color: 0x141618,
+      roughness: 0.3,
+      metalness: 0.8,
     });
 
-    // 5. Villa Construction Group
+    // 6. Assembly: Full Villa & Landscape Group
     const villaGroup = new THREE.Group();
     scene.add(villaGroup);
 
-    // --- A. Ground Plinth & Landscape ---
-    // Base platform
-    const basePlinthGeo = new THREE.BoxGeometry(22, 0.6, 18);
-    const basePlinth = new THREE.Mesh(basePlinthGeo, concreteMat);
-    basePlinth.position.y = -0.3;
-    basePlinth.receiveShadow = true;
-    villaGroup.add(basePlinth);
+    // --- LANDSCAPE & PLINTH ---
+    // 1. Surrounding Terrain (Warm Slate / Grass border)
+    const terrainGeo = new THREE.BoxGeometry(32, 0.4, 28);
+    const terrain = new THREE.Mesh(terrainGeo, lawnMat);
+    terrain.position.y = -0.4;
+    terrain.receiveShadow = true;
+    villaGroup.add(terrain);
 
-    // Infinity Pool Basin (Sunken)
-    const poolBorderGeo = new THREE.BoxGeometry(9.4, 0.2, 5.4);
-    const poolBorder = new THREE.Mesh(poolBorderGeo, darkBasaltMat);
-    poolBorder.position.set(5.5, 0.02, 3.5);
-    poolBorder.receiveShadow = true;
-    villaGroup.add(poolBorder);
+    // 2. Large Travertine Paver Terrace
+    const paverPlatformGeo = new THREE.BoxGeometry(25, 0.4, 21);
+    const paverPlatform = new THREE.Mesh(paverPlatformGeo, paverFloorMat);
+    paverPlatform.position.y = -0.15;
+    paverPlatform.receiveShadow = true;
+    villaGroup.add(paverPlatform);
 
-    const poolWaterGeo = new THREE.BoxGeometry(9, 0.1, 5);
+    // 3. Sunken Infinity Pool with Coping
+    const poolWidth = 11;
+    const poolDepth = 5.6;
+    const poolCopingGeo = new THREE.BoxGeometry(poolWidth + 0.8, 0.2, poolDepth + 0.8);
+    const poolCoping = new THREE.Mesh(poolCopingGeo, darkBasaltCladdingMat);
+    poolCoping.position.set(6, 0.05, 4.2);
+    poolCoping.receiveShadow = true;
+    villaGroup.add(poolCoping);
+
+    const poolWaterGeo = new THREE.BoxGeometry(poolWidth, 0.15, poolDepth);
     const poolWater = new THREE.Mesh(poolWaterGeo, poolWaterMat);
-    poolWater.position.set(5.5, 0.08, 3.5);
+    poolWater.position.set(6, 0.1, 4.2);
     villaGroup.add(poolWater);
 
-    // Pool Floor
-    const poolFloorGeo = new THREE.PlaneGeometry(9, 5);
-    const poolFloor = new THREE.Mesh(poolFloorGeo, waterBaseMat);
-    poolFloor.rotation.x = -Math.PI / 2;
-    poolFloor.position.set(5.5, 0.01, 3.5);
-    villaGroup.add(poolFloor);
+    // Sunken Pool Basin
+    const poolBasinGeo = new THREE.BoxGeometry(poolWidth - 0.2, 0.05, poolDepth - 0.2);
+    const poolBasinMat = new THREE.MeshStandardMaterial({ color: 0x004455, roughness: 0.3 });
+    const poolBasin = new THREE.Mesh(poolBasinGeo, poolBasinMat);
+    poolBasin.position.set(6, 0.01, 4.2);
+    villaGroup.add(poolBasin);
 
-    // Teak Sun Deck beside pool
-    const deckGeo = new THREE.BoxGeometry(9.4, 0.15, 3.2);
-    const deck = new THREE.Mesh(deckGeo, woodDeckMat);
-    deck.position.set(5.5, 0.08, -1.2);
-    deck.receiveShadow = true;
-    villaGroup.add(deck);
+    // 4. Teak Hardwood Sun Deck
+    const sunDeckGeo = new THREE.BoxGeometry(poolWidth + 0.8, 0.12, 3.6);
+    const sunDeck = new THREE.Mesh(sunDeckGeo, warmWoodSlatMat);
+    sunDeck.position.set(6, 0.12, -0.8);
+    sunDeck.receiveShadow = true;
+    villaGroup.add(sunDeck);
 
-    // Minimalist Sun Loungers (2 loungers)
-    for (let i = 0; i < 2; i++) {
-      const loungerGeo = new THREE.BoxGeometry(2.2, 0.2, 0.9);
-      const lounger = new THREE.Mesh(loungerGeo, concreteMat);
-      lounger.position.set(3.5 + i * 3.5, 0.22, -1.2);
-      lounger.castShadow = true;
-      lounger.receiveShadow = true;
-      villaGroup.add(lounger);
+    // Modern Sun Loungers with Fabric cushions
+    for (let i = 0; i < 3; i++) {
+      const loungerFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(2.3, 0.15, 0.85),
+        darkSteelMullionMat
+      );
+      loungerFrame.position.set(3.2 + i * 2.8, 0.25, -0.8);
+      loungerFrame.castShadow = true;
+      villaGroup.add(loungerFrame);
+
+      const cushion = new THREE.Mesh(
+        new THREE.BoxGeometry(2.2, 0.1, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0xe8e4dc, roughness: 0.8 })
+      );
+      cushion.position.set(3.2 + i * 2.8, 0.36, -0.8);
+      cushion.castShadow = true;
+      villaGroup.add(cushion);
     }
 
-    // --- B. Ground Floor Residence ---
-    // Main structural core wall (Basalt)
-    const coreWallGeo = new THREE.BoxGeometry(0.5, 3.8, 8);
-    const coreWall = new THREE.Mesh(coreWallGeo, darkBasaltMat);
-    coreWall.position.set(-4.5, 1.9, 0);
-    coreWall.castShadow = true;
-    coreWall.receiveShadow = true;
-    villaGroup.add(coreWall);
+    // --- GROUND FLOOR RESIDENCE ---
+    // Concrete Feature Wall (Backdrop)
+    const backWallGeo = new THREE.BoxGeometry(11, 4.2, 0.6);
+    const backWall = new THREE.Mesh(backWallGeo, boardFormedConcreteMat);
+    backWall.position.set(-1.5, 2.1, -4.8);
+    backWall.castShadow = true;
+    backWall.receiveShadow = true;
+    villaGroup.add(backWall);
 
-    // Rear concrete wall
-    const rearWallGeo = new THREE.BoxGeometry(9, 3.8, 0.5);
-    const rearWall = new THREE.Mesh(rearWallGeo, concreteMat);
-    rearWall.position.set(-0.5, 1.9, -4.5);
-    rearWall.castShadow = true;
-    rearWall.receiveShadow = true;
-    villaGroup.add(rearWall);
+    // Stone Core Service Block (Basalt)
+    const serviceCoreGeo = new THREE.BoxGeometry(4.2, 4.2, 5.2);
+    const serviceCore = new THREE.Mesh(serviceCoreGeo, darkBasaltCladdingMat);
+    serviceCore.position.set(-5, 2.1, -0.5);
+    serviceCore.castShadow = true;
+    serviceCore.receiveShadow = true;
+    villaGroup.add(serviceCore);
 
-    // Ground Floor Ceiling / Intermediate Slab
-    const midSlabGeo = new THREE.BoxGeometry(11, 0.4, 9.5);
-    const midSlab = new THREE.Mesh(midSlabGeo, concreteMat);
-    midSlab.position.set(-0.5, 3.8, 0);
-    midSlab.castShadow = true;
-    midSlab.receiveShadow = true;
-    villaGroup.add(midSlab);
+    // Intermediate Concrete Ceiling Slab
+    const interSlabGeo = new THREE.BoxGeometry(13.5, 0.45, 11);
+    const interSlab = new THREE.Mesh(interSlabGeo, boardFormedConcreteMat);
+    interSlab.position.set(-1, 4.25, 0.5);
+    interSlab.castShadow = true;
+    interSlab.receiveShadow = true;
+    villaGroup.add(interSlab);
 
-    // Ground Floor Large Glass Walls
-    const groundGlassFrontGeo = new THREE.BoxGeometry(8, 3.6, 0.1);
-    const groundGlassFront = new THREE.Mesh(groundGlassFrontGeo, glassMat);
-    groundGlassFront.position.set(0, 1.9, 4.2);
-    villaGroup.add(groundGlassFront);
+    // Floor-to-Ceiling Glass Walls with Black Steel Frames
+    const glassFrontGeo = new THREE.BoxGeometry(8.5, 3.9, 0.08);
+    const glassFront = new THREE.Mesh(glassFrontGeo, glassCurtainMat);
+    glassFront.position.set(0.8, 2.1, 4.8);
+    villaGroup.add(glassFront);
 
-    const groundGlassSideGeo = new THREE.BoxGeometry(0.1, 3.6, 8.2);
-    const groundGlassSide = new THREE.Mesh(groundGlassSideGeo, glassMat);
-    groundGlassSide.position.set(4, 1.9, 0);
-    villaGroup.add(groundGlassSide);
+    const glassSideGeo = new THREE.BoxGeometry(0.08, 3.9, 9.5);
+    const glassSide = new THREE.Mesh(glassSideGeo, glassCurtainMat);
+    glassSide.position.set(4.8, 2.1, 0.2);
+    villaGroup.add(glassSide);
 
-    // Slim Architectural Columns (Blackened Steel)
-    const colPositions = [
-      [3.8, 1.9, 4],
-      [3.8, 1.9, -4],
-      [-0.5, 1.9, 4],
+    // Black Steel Mullions & Columns
+    const mullionPositions = [
+      [-1.8, 2.1, 4.82],
+      [1.0, 2.1, 4.82],
+      [3.8, 2.1, 4.82],
+      [4.82, 2.1, -2.5],
+      [4.82, 2.1, 1.8],
     ];
-    colPositions.forEach(([x, y, z]) => {
-      const colGeo = new THREE.CylinderGeometry(0.12, 0.12, 3.6, 16);
-      const col = new THREE.Mesh(colGeo, darkBasaltMat);
-      col.position.set(x, y, z);
-      col.castShadow = true;
-      villaGroup.add(col);
+    mullionPositions.forEach(([x, y, z]) => {
+      const mul = new THREE.Mesh(new THREE.BoxGeometry(0.12, 3.9, 0.12), darkSteelMullionMat);
+      mul.position.set(x, y, z);
+      mul.castShadow = true;
+      villaGroup.add(mul);
     });
 
-    // --- C. Dramatic Cantilevered Upper Floor ---
-    // The iconic hovering box extending dramatically toward the pool (+X direction)
-    const cantileverBoxGeo = new THREE.BoxGeometry(10.5, 3.4, 6.5);
-    const cantileverBox = new THREE.Mesh(cantileverBoxGeo, concreteMat);
-    // Overhangs significantly past the ground floor: center at x = 1.5
-    cantileverBox.position.set(1.5, 5.7, 0.5);
+    // --- DRAMATIC CANTILEVER UPPER FLOOR ---
+    // The Master Cantilever Volume extending toward +X
+    const cantileverWidth = 11.5;
+    const cantileverHeight = 3.6;
+    const cantileverDepth = 6.8;
+
+    // Wood-slat cantilevered box
+    const cantileverBox = new THREE.Mesh(
+      new THREE.BoxGeometry(cantileverWidth, cantileverHeight, cantileverDepth),
+      warmWoodSlatMat
+    );
+    cantileverBox.position.set(2.2, 6.2, 1.2);
     cantileverBox.castShadow = true;
     cantileverBox.receiveShadow = true;
     villaGroup.add(cantileverBox);
 
-    // Deep Panoramic Window Ribbon on the Cantilever Face (Looking over pool)
-    const windowRibbonGeo = new THREE.BoxGeometry(0.15, 2.2, 5.8);
-    const windowRibbon = new THREE.Mesh(windowRibbonGeo, glassMat);
-    windowRibbon.position.set(6.78, 5.7, 0.5);
-    villaGroup.add(windowRibbon);
+    // Concrete Overhang Fascia Frame
+    const cantileverFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(cantileverWidth + 0.4, 0.2, cantileverDepth + 0.4),
+      boardFormedConcreteMat
+    );
+    cantileverFrame.position.set(2.2, 8.05, 1.2);
+    cantileverFrame.castShadow = true;
+    villaGroup.add(cantileverFrame);
 
-    // Dark mullion border around the ribbon
-    const ribbonFrameGeo = new THREE.BoxGeometry(0.2, 2.4, 6);
-    const ribbonFrame = new THREE.Mesh(ribbonFrameGeo, darkBasaltMat);
-    ribbonFrame.position.set(6.75, 5.7, 0.5);
+    // Deep Panoramic Ribbon Window on the Cantilever End (Facing Pool)
+    const ribbonWin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, 2.4, 5.6),
+      glassCurtainMat
+    );
+    ribbonWin.position.set(8.0, 6.2, 1.2);
+    villaGroup.add(ribbonWin);
+
+    // Black framing for ribbon
+    const ribbonFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 2.6, 5.8),
+      darkSteelMullionMat
+    );
+    ribbonFrame.position.set(7.95, 6.2, 1.2);
     villaGroup.add(ribbonFrame);
 
-    // Architectural Wood Screening Louvers on the South Face of Cantilever
-    const louverGroup = new THREE.Group();
-    for (let l = 0; l < 8; l++) {
-      const louverGeo = new THREE.BoxGeometry(0.08, 2.2, 0.35);
-      const louver = new THREE.Mesh(louverGeo, woodDeckMat);
-      louver.position.set(6.79, 5.7, -1.8 + l * 0.5);
-      louver.rotation.y = 0.4;
+    // Vertical Wood Sunscreen Louvers on Cantilever
+    for (let s = 0; s < 10; s++) {
+      const louver = new THREE.Mesh(
+        new THREE.BoxGeometry(0.06, 2.4, 0.45),
+        darkBasaltCladdingMat
+      );
+      louver.position.set(8.02, 6.2, -1.2 + s * 0.55);
+      louver.rotation.y = 0.35;
       louver.castShadow = true;
-      louverGroup.add(louver);
+      villaGroup.add(louver);
     }
-    villaGroup.add(louverGroup);
 
-    // Upper Balcony Glass Railing
-    const railingGeo = new THREE.BoxGeometry(4.5, 1.1, 0.08);
-    const railing = new THREE.Mesh(railingGeo, glassMat);
-    railing.position.set(-3.5, 4.45, 4.2);
-    villaGroup.add(railing);
+    // Outdoor Cantilever Pergola (over the deck)
+    const pergolaBeamCount = 7;
+    for (let p = 0; p < pergolaBeamCount; p++) {
+      const beam = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.3, 4.2),
+        darkSteelMullionMat
+      );
+      beam.position.set(1.5 + p * 0.9, 4.2, -2.8);
+      beam.castShadow = true;
+      villaGroup.add(beam);
+    }
 
-    // --- D. Architectural Landscaping (Trees & Zen Basin) ---
-    // Minimalist Cypress / Columnar Tree
-    const treeTrunkGeo = new THREE.CylinderGeometry(0.1, 0.14, 4.5, 8);
-    const treeTrunk = new THREE.Mesh(treeTrunkGeo, woodDeckMat);
-    treeTrunk.position.set(-7, 2.25, 4.5);
-    treeTrunk.castShadow = true;
-    villaGroup.add(treeTrunk);
+    // Upper Balcony with Glass Railing
+    const balconyGlass = new THREE.Mesh(
+      new THREE.BoxGeometry(4.2, 1.1, 0.05),
+      glassCurtainMat
+    );
+    balconyGlass.position.set(-3.2, 4.95, 5.8);
+    villaGroup.add(balconyGlass);
 
-    const foliageGeo = new THREE.ConeGeometry(1.3, 5, 8);
-    const foliageMat = new THREE.MeshStandardMaterial({ color: 0x2e4232, roughness: 0.8 });
-    const foliageMesh = new THREE.Mesh(foliageGeo, foliageMat);
-    foliageMesh.position.set(-7, 5, 4.5);
-    foliageMesh.castShadow = true;
-    villaGroup.add(foliageMesh);
+    const balconyHandrail = new THREE.Mesh(
+      new THREE.BoxGeometry(4.2, 0.06, 0.1),
+      darkSteelMullionMat
+    );
+    balconyHandrail.position.set(-3.2, 5.5, 5.8);
+    villaGroup.add(balconyHandrail);
 
-    // Architectural Planter Box
-    const planterGeo = new THREE.BoxGeometry(3, 0.8, 3);
-    const planter = new THREE.Mesh(planterGeo, darkBasaltMat);
-    planter.position.set(-7, 0.4, 4.5);
-    planter.receiveShadow = true;
-    villaGroup.add(planter);
+    // --- LANDSCAPING (Cypress Trees & Sculptural Planters) ---
+    const addTree = (x: number, z: number, scale = 1) => {
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12 * scale, 0.18 * scale, 4.2 * scale, 8),
+        darkBasaltCladdingMat
+      );
+      trunk.position.set(x, 2.1 * scale, z);
+      trunk.castShadow = true;
+      villaGroup.add(trunk);
 
-    // 6. Interaction: Orbit Drag & Zoom
+      const foliage = new THREE.Mesh(
+        new THREE.ConeGeometry(1.2 * scale, 5.2 * scale, 8),
+        new THREE.MeshStandardMaterial({ color: 0x223826, roughness: 0.85 })
+      );
+      foliage.position.set(x, 4.8 * scale, z);
+      foliage.castShadow = true;
+      villaGroup.add(foliage);
+
+      // Planter
+      const planter = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4 * scale, 0.6 * scale, 2.4 * scale),
+        darkBasaltCladdingMat
+      );
+      planter.position.set(x, 0.3 * scale, z);
+      planter.receiveShadow = true;
+      villaGroup.add(planter);
+    };
+
+    addTree(-9, 5.5, 1.1);
+    addTree(-11, 2.0, 0.9);
+    addTree(-7.5, -6.5, 1.0);
+
+    // 7. Interactive Controls: Orbit & Zoom
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
-    let spherical = { radius: 26, theta: 0.75, phi: 1.05 };
+    let spherical = { radius: 28, theta: 0.85, phi: 1.05 };
 
     const updateCameraFromSpherical = () => {
       camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
       camera.position.y = spherical.radius * Math.cos(spherical.phi);
       camera.position.z = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
-      camera.lookAt(0.5, 2.8, 0);
+      camera.lookAt(0.5, 3.2, 0.5);
     };
     updateCameraFromSpherical();
 
@@ -297,7 +516,7 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
       const deltaY = e.clientY - previousMousePosition.y;
 
       spherical.theta -= deltaX * 0.007;
-      spherical.phi = Math.max(0.3, Math.min(Math.PI / 2 - 0.05, spherical.phi - deltaY * 0.007));
+      spherical.phi = Math.max(0.2, Math.min(Math.PI / 2 - 0.08, spherical.phi - deltaY * 0.007));
 
       updateCameraFromSpherical();
       previousMousePosition = { x: e.clientX, y: e.clientY };
@@ -308,9 +527,8 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
     };
 
     const onWheel = (e: WheelEvent) => {
-      // Zoom
       e.preventDefault();
-      spherical.radius = Math.max(12, Math.min(42, spherical.radius + e.deltaY * 0.02));
+      spherical.radius = Math.max(14, Math.min(48, spherical.radius + e.deltaY * 0.022));
       updateCameraFromSpherical();
     };
 
@@ -319,37 +537,32 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
     window.addEventListener('mouseup', onMouseUp);
     container.addEventListener('wheel', onWheel, { passive: false });
 
-    // Presets
+    // Camera Presets
     const setCameraPreset = (preset: 'isometric' | 'cantilever' | 'elevation') => {
       setActiveCameraView(preset);
       if (preset === 'isometric') {
-        spherical = { radius: 26, theta: 0.75, phi: 1.05 };
+        spherical = { radius: 28, theta: 0.85, phi: 1.05 };
       } else if (preset === 'cantilever') {
-        spherical = { radius: 20, theta: 0.3, phi: 1.25 };
+        spherical = { radius: 21, theta: 0.28, phi: 1.25 };
       } else if (preset === 'elevation') {
-        spherical = { radius: 24, theta: 1.57, phi: 1.4 };
+        spherical = { radius: 26, theta: 1.57, phi: 1.4 };
       }
       updateCameraFromSpherical();
     };
 
-    controlsRef.current = {
-      setCameraPreset,
-      toggleAutoRotate: () => setIsAutoRotate((prev) => !prev),
-    };
+    controlsRef.current = { setCameraPreset };
 
-    // 7. Animation Loop
+    // 8. Animation Render Loop
     let animationFrameId: number;
-    let autoSpeed = 0.0035;
-
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Subtle water shimmer
-      poolWater.position.y = 0.08 + Math.sin(Date.now() * 0.003) * 0.015;
+      // Subtle water surface oscillation
+      poolWater.position.y = 0.1 + Math.sin(Date.now() * 0.0025) * 0.012;
 
-      // Auto rotation
+      // Auto-rotation
       if (isAutoRotate && !isDragging) {
-        spherical.theta += autoSpeed;
+        spherical.theta += 0.003;
         updateCameraFromSpherical();
       }
 
@@ -357,7 +570,7 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
     };
     animate();
 
-    // 8. Resize Handler
+    // 9. Resize Handler
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
@@ -376,11 +589,14 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
       container.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', handleResize);
       renderer.dispose();
+      concreteTex.dispose();
+      woodTex.dispose();
+      paverTex.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [isAutoRotate]);
+  }, [isAutoRotate, isNightMode]);
 
   return (
     <div 
@@ -390,27 +606,27 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
         borderColor: currentProperty.borderTone,
       }}
     >
-      {/* Header Info & View Controls */}
+      {/* Header Bar */}
       <div 
         className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-hairline"
         style={{ borderColor: currentProperty.borderTone }}
       >
         <div className="flex items-center space-x-3">
-          <Rotate3d className="w-5 h-5 opacity-70 animate-spin-slow" style={{ color: currentProperty.textTone }} />
+          <Rotate3d className="w-5 h-5 opacity-75 animate-spin-slow" style={{ color: currentProperty.textTone }} />
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-[9px] font-mono tracking-super-wide uppercase opacity-60">
-                INTERACTIVE 3D VILLA SIMULATION
+                HIGH-FIDELITY 3D VILLA SIMULATION
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
             </div>
             <h3 className="text-base sm:text-lg font-editorial font-bold uppercase tracking-wider" style={{ color: currentProperty.textTone }}>
-              THE CANTILEVER WATER PAVILION // 3D SPATIAL MODEL
+              THE CANTILEVER RESIDENCE // REAL-TIME 3D ARCHITECTURAL SIMULATION
             </h3>
           </div>
         </div>
 
-        {/* View Camera Presets & Play/Pause */}
+        {/* View Controls: Angles, Day/Night, Orbit */}
         <div className="flex flex-wrap items-center gap-2 text-[9px] font-mono uppercase">
           <button
             onClick={() => controlsRef.current?.setCameraPreset('isometric')}
@@ -440,6 +656,23 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
             [FACADE ELEVATION]
           </button>
           <button
+            onClick={() => setIsNightMode((prev) => !prev)}
+            className="flex items-center space-x-1.5 px-3 py-1.5 border-hairline opacity-75 hover:opacity-100 transition-all"
+            style={{ borderColor: currentProperty.borderTone, color: currentProperty.textTone }}
+          >
+            {isNightMode ? (
+              <>
+                <Sun className="w-3 h-3 text-amber-300" />
+                <span>DAYLIGHT</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3 h-3" />
+                <span>DUSK ILLUMINATION</span>
+              </>
+            )}
+          </button>
+          <button
             onClick={() => setIsAutoRotate((prev) => !prev)}
             className="flex items-center space-x-1.5 px-3 py-1.5 border-hairline opacity-75 hover:opacity-100 transition-all"
             style={{ borderColor: currentProperty.borderTone, color: currentProperty.textTone }}
@@ -447,38 +680,38 @@ export const ThreeDVillaViewer: React.FC<ThreeDVillaViewerProps> = ({ currentPro
             {isAutoRotate ? (
               <>
                 <Pause className="w-3 h-3" />
-                <span>PAUSE ORBIT</span>
+                <span>PAUSE</span>
               </>
             ) : (
               <>
                 <Play className="w-3 h-3" />
-                <span>RESUME ORBIT</span>
+                <span>ORBIT</span>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* 3D WebGL Canvas Container */}
+      {/* 3D WebGL Canvas Viewport */}
       <div 
         ref={mountRef} 
-        className="w-full h-[420px] sm:h-[540px] md:h-[620px] cursor-grab active:cursor-grabbing relative"
+        className="w-full h-[440px] sm:h-[560px] md:h-[640px] cursor-grab active:cursor-grabbing relative"
       />
 
-      {/* Footer Specs & Controls Prompt */}
+      {/* Footer Specs & Materials */}
       <div 
         className="w-full pt-4 border-t border-hairline flex flex-col sm:flex-row items-center justify-between text-[8px] sm:text-[9px] font-mono uppercase tracking-widest opacity-65 gap-2"
         style={{ borderColor: currentProperty.borderTone, color: currentProperty.subtleTone }}
       >
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <span>DRAG TO ORBIT 360°</span>
           <span>•</span>
-          <span>SCROLL TO ZOOM</span>
+          <span>WHEEL TO ZOOM</span>
           <span>•</span>
-          <span>POURED TERRACOTTA CONCRETE • INFINITY POOL • GLASS ATELIER</span>
+          <span>BOARD-FORMED CONCRETE • WARM CEDAR BATTENS • BASALT CORE • POOL COPING</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <span>VOLUMETRIC FIDELITY: 1:1 ARCHITECTURAL</span>
+        <div>
+          <span>RENDER ENGINE: THREE.JS WEBGL // SHADOWS PCF-SOFT</span>
         </div>
       </div>
     </div>
