@@ -2,7 +2,7 @@ import React from 'react';
 import type { PropertyItem } from '../types/property';
 import { ShieldCheck, Box, Compass } from 'lucide-react';
 import { ThreeDTiltCard } from './ThreeDTiltCard';
-import { ThreeDArchitecturalModel } from './ThreeDArchitecturalModel';
+import { ThreeDVillaViewer } from './ThreeDVillaViewer';
 
 interface CurationSectionProps {
   currentProperty: PropertyItem;
@@ -10,7 +10,7 @@ interface CurationSectionProps {
 
 /**
  * Section: Curation & Methodology (#curation)
- * Enriched with an Interactive 3D Axonometric Structural Model and 3D Extruded Pillar Slabs.
+ * Enriched with a Real 3D Architectural Villa Simulation and 3D Extruded Pillar Slabs.
  */
 export const CurationSection: React.FC<CurationSectionProps> = ({ currentProperty }) => {
   const pillars = [
@@ -51,7 +51,7 @@ export const CurationSection: React.FC<CurationSectionProps> = ({ currentPropert
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Title Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-baseline mb-16 md:mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-baseline mb-12 md:mb-16">
           <div className="lg:col-span-8">
             <span 
               className="text-[10px] font-mono uppercase tracking-super-wide opacity-60 block mb-4"
@@ -78,11 +78,11 @@ export const CurationSection: React.FC<CurationSectionProps> = ({ currentPropert
           </div>
         </div>
 
-        {/* Interactive 3D Axonometric Structural Model */}
-        <ThreeDArchitecturalModel currentProperty={currentProperty} />
+        {/* Real-time 3D Architectural Villa Simulation */}
+        <ThreeDVillaViewer currentProperty={currentProperty} />
 
         {/* 3 Pillars in 3D Extruded Tilt Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 mt-14">
           {pillars.map((pillar) => {
             const Icon = pillar.icon;
             return (
