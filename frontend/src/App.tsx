@@ -14,8 +14,14 @@ import { AboutSection } from './components/AboutSection';
 import { EditorialFooter } from './components/EditorialFooter';
 import { IndexModal } from './components/IndexModal';
 import { SignInModal } from './components/SignInModal';
+import { PatronDashboard } from './components/dashboards/PatronDashboard';
+import { AgentDashboard } from './components/dashboards/AgentDashboard';
+import type { UserSession } from './services/api';
 
 export const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<'landing' | 'patron' | 'agent'>('landing');
+  const [session, setSession] = useState<UserSession | null>(null);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const [isIndexOpen, setIsIndexOpen] = useState(false);
@@ -43,11 +49,11 @@ export const App: React.FC = () => {
 
   // Trackpad horizontal two-finger scroll listener on hero
   useEffect(() => {
+    if (currentView !== 'landing') return;
     const heroEl = heroRef.current;
     if (!heroEl) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // If user is scrolling horizontally with trackpad (left-to-right / right-to-left)
       if (Math.abs(e.deltaX) > 10 && Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
         accumulatedDeltaXRef.current += e.deltaX;
 
@@ -66,10 +72,11 @@ export const App: React.FC = () => {
 
     heroEl.addEventListener('wheel', handleWheel, { passive: true });
     return () => heroEl.removeEventListener('wheel', handleWheel);
-  }, [handleNext, handlePrev]);
+  }, [handleNext, handlePrev, currentView]);
 
-  // Keyboard navigation (Arrow keys)
+  // Keyboard navigation (Arrow keys on landing page)
   useEffect(() => {
+    if (currentView !== 'landing') return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') {
         handleNext();
@@ -79,7 +86,7 @@ export const App: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev]);
+  }, [handleNext, handlePrev, currentView]);
 
   // Mouse Parallax
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -98,7 +105,6 @@ export const App: React.FC = () => {
     if (pointerStartXRef.current === null) return;
     const deltaX = e.clientX - pointerStartXRef.current;
 
-    // If dragged horizontally more than 40px
     if (Math.abs(deltaX) > 40) {
       if (deltaX < 0) {
         handleNext();
@@ -116,6 +122,98 @@ export const App: React.FC = () => {
     }
   };
 
+  // Role Navigation Handlers
+  const openPatronPortal = () => {
+    if (!session || session.role !== 'CUSTOMER') {
+      setSession({
+        personId: 1,
+        name: 'Alice Smith (Patron)',
+        email: 'alice.smith@example.com',
+        role: 'CUSTOMER',
+        customerId: 1,
+        token: 'patron-active-session',
+      });
+    }
+    setCurrentView('patron');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const openAgentPortal = () => {
+    if (!session || session.role !== 'AGENT') {
+      setSession({
+        personId: 5,
+        name: 'Ethan Miller (Atelier)',
+        email: 'ethan.realtor@example.com',
+        role: 'AGENT',
+        agentId: 1,
+        token: 'agent-active-session',
+      });
+    }
+    setCurrentView('agent');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleLoginSuccess = (newSession: UserSession) => {
+    setSession(newSession);
+    if (newSession.role === 'CUSTOMER') {
+      setCurrentView('patron');
+    } else {
+      setCurrentView('agent');
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleSignOut = () => {
+    setSession(null);
+    setCurrentView('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // --- RENDER PATRON DASHBOARD ---
+  if (currentView === 'patron') {
+    const activePatronSession: UserSession = session && session.role === 'CUSTOMER'
+      ? session
+      : {
+          personId: 1,
+          name: 'Alice Smith (Patron)',
+          email: 'alice.smith@example.com',
+          role: 'CUSTOMER',
+          customerId: 1,
+          token: 'patron-active-session',
+        };
+
+    return (
+      <PatronDashboard
+        session={activePatronSession}
+        onNavigateHome={() => setCurrentView('landing')}
+        onSwitchToAgent={openAgentPortal}
+      />
+    );
+  }
+
+  // --- RENDER ATELIER / AGENT DASHBOARD ---
+  if (currentView === 'agent') {
+    const activeAgentSession: UserSession = session && session.role === 'AGENT'
+      ? session
+      : {
+          personId: 5,
+          name: 'Ethan Miller (Atelier)',
+          email: 'ethan.realtor@example.com',
+          role: 'AGENT',
+          agentId: 1,
+          token: 'agent-active-session',
+        };
+
+    return (
+      <AgentDashboard
+        session={activeAgentSession}
+        onNavigateHome={() => setCurrentView('landing')}
+        onSwitchToPatron={openPatronPortal}
+      />
+    );
+  }
+
+  // --- RENDER IMMERSIVE LANDING PAGE ---
   return (
     <div
       onMouseMove={handleMouseMove}
@@ -130,6 +228,10 @@ export const App: React.FC = () => {
         currentProperty={activeProperty} 
         onOpenIndex={() => setIsIndexOpen(true)}
         onOpenSignIn={() => setIsSignInOpen(true)}
+        onOpenPatronPortal={openPatronPortal}
+        onOpenAgentPortal={openAgentPortal}
+        session={session}
+        onSignOut={handleSignOut}
       />
 
       {/* 3. Master Archive Index Modal */}
@@ -146,6 +248,7 @@ export const App: React.FC = () => {
         isOpen={isSignInOpen}
         onClose={() => setIsSignInOpen(false)}
         currentProperty={activeProperty}
+        onLoginSuccess={handleLoginSuccess}
       />
 
       {/* ========================================================================= */}

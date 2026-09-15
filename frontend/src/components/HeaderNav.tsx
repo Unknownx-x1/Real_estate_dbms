@@ -1,19 +1,32 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, LogOut, User, Briefcase } from 'lucide-react';
 import type { PropertyItem } from '../types/property';
+import type { UserSession } from '../services/api';
 
 interface HeaderNavProps {
   currentProperty: PropertyItem;
   onOpenIndex?: () => void;
   onOpenSignIn?: () => void;
+  onOpenPatronPortal?: () => void;
+  onOpenAgentPortal?: () => void;
+  session?: UserSession | null;
+  onSignOut?: () => void;
 }
 
 /**
- * Section 10: Minimal Editorial Navigation
+ * Minimal Editorial Navigation
  * Small, uppercase, precise, widely tracked typography.
- * Clicking items smoothly navigates to corresponding sections.
+ * Supports direct role portal navigation & session status indicator.
  */
-export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenIndex, onOpenSignIn }) => {
+export const HeaderNav: React.FC<HeaderNavProps> = ({
+  currentProperty,
+  onOpenIndex,
+  onOpenSignIn,
+  onOpenPatronPortal,
+  onOpenAgentPortal,
+  session,
+  onSignOut,
+}) => {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -25,7 +38,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenInd
     <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 md:px-12 md:py-8 flex items-center justify-between pointer-events-auto transition-colors duration-650">
       {/* Top Left: Brand Mark */}
       <div className="flex items-center space-x-3">
-        <button 
+        <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="group flex flex-col text-left font-sans tracking-widest-editorial text-xs md:text-[11px] uppercase transition-opacity duration-300"
           style={{ color: currentProperty.textTone }}
@@ -36,7 +49,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenInd
       </div>
 
       {/* Center: Editorial Links */}
-      <nav className="hidden md:flex items-center space-x-10">
+      <nav className="hidden md:flex items-center space-x-8 lg:space-x-10">
         <button
           onClick={() => scrollTo('hero')}
           className="text-[10px] uppercase tracking-widest-editorial font-medium transition-all duration-300 hover:opacity-100 relative py-1"
@@ -65,16 +78,39 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenInd
         >
           ABOUT
         </button>
+
+        {/* Quick Portal Switchers */}
+        <div className="h-3 w-[1px] opacity-30" style={{ backgroundColor: currentProperty.textTone }} />
+
+        <button
+          onClick={onOpenPatronPortal}
+          className="text-[10px] uppercase tracking-widest-editorial font-medium transition-all duration-300 hover:opacity-100 flex items-center space-x-1"
+          style={{ color: currentProperty.textTone, opacity: 0.85 }}
+          title="Open Patron / Customer Portal"
+        >
+          <User className="w-3 h-3 opacity-60" />
+          <span>PATRON</span>
+        </button>
+
+        <button
+          onClick={onOpenAgentPortal}
+          className="text-[10px] uppercase tracking-widest-editorial font-medium transition-all duration-300 hover:opacity-100 flex items-center space-x-1"
+          style={{ color: currentProperty.textTone, opacity: 0.85 }}
+          title="Open Atelier / Agent Portal"
+        >
+          <Briefcase className="w-3 h-3 opacity-60" />
+          <span>ATELIER</span>
+        </button>
       </nav>
 
-      {/* Top Right: Search & Minimal Sign In */}
-      <div className="flex items-center space-x-6 md:space-x-8">
-        <button 
+      {/* Top Right: Search, Session Status & Sign In */}
+      <div className="flex items-center space-x-4 md:space-x-6">
+        <button
           onClick={onOpenIndex}
           className="flex items-center space-x-2 text-[10px] uppercase tracking-widest-editorial transition-opacity hover:opacity-100"
-          style={{ 
+          style={{
             color: currentProperty.textTone,
-            opacity: 0.75 
+            opacity: 0.75,
           }}
           aria-label="Open Archive Index"
         >
@@ -82,16 +118,45 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentProperty, onOpenInd
           <span className="hidden sm:inline">INDEX</span>
         </button>
 
-        <button 
-          onClick={onOpenSignIn}
-          className="text-[10px] uppercase tracking-widest-editorial transition-opacity hover:opacity-100"
-          style={{ 
-            color: currentProperty.textTone,
-            opacity: 0.75 
-          }}
-        >
-          SIGN IN
-        </button>
+        {session ? (
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={session.role === 'CUSTOMER' ? onOpenPatronPortal : onOpenAgentPortal}
+              className="px-2.5 py-1 border text-[9px] uppercase tracking-widest font-mono flex items-center space-x-1.5 transition-all hover:bg-black/10"
+              style={{
+                borderColor: currentProperty.borderTone,
+                color: currentProperty.textTone,
+              }}
+              title="Open active dashboard"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-bold">{session.role === 'CUSTOMER' ? 'PATRON' : 'ATELIER'}</span>
+            </button>
+
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                className="p-1 opacity-60 hover:opacity-100 transition-opacity"
+                style={{ color: currentProperty.textTone }}
+                title="Sign Out of Session"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={onOpenSignIn}
+            className="text-[10px] uppercase tracking-widest-editorial transition-opacity hover:opacity-100 px-2.5 py-1 border"
+            style={{
+              borderColor: currentProperty.borderTone,
+              color: currentProperty.textTone,
+              opacity: 0.85,
+            }}
+          >
+            SIGN IN
+          </button>
+        )}
       </div>
     </header>
   );
