@@ -1,5 +1,7 @@
+import React from 'react';
 import type { PropertyItem } from '../types/property';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Box } from 'lucide-react';
+import { ThreeDTiltCard } from './ThreeDTiltCard';
 
 interface AboutSectionProps {
   currentProperty: PropertyItem;
@@ -7,14 +9,14 @@ interface AboutSectionProps {
 
 /**
  * Section: About & Spatial Manifesto (#about)
- * Architectural values, global metrics, and patron engagement.
+ * Architectural values, global metrics, and 3D perspective stats.
  */
 export const AboutSection: React.FC<AboutSectionProps> = ({ currentProperty }) => {
   const metrics = [
-    { label: 'CURATED EDITIONS', value: '05' },
-    { label: 'GLOBAL ARCHIVES', value: '14' },
-    { label: 'TOTAL ASSET EVALUATION', value: '€ 185M' },
-    { label: 'SPECULATIVE ASSETS', value: '0.0%' },
+    { label: 'CURATED EDITIONS', value: '05', detail: 'INDIVISIBLE WORKS' },
+    { label: 'GLOBAL ARCHIVES', value: '14', detail: 'ACROSS 8 BIOMES' },
+    { label: 'TOTAL ASSET EVALUATION', value: '€ 185M', detail: 'VERIFIED APPRAISAL' },
+    { label: 'SPECULATIVE VOLUME', value: '0.0%', detail: 'PURE CUSTODIANSHIP' },
   ];
 
   return (
@@ -71,26 +73,37 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ currentProperty }) =
           </div>
         </div>
 
-        {/* Metrics Bar */}
-        <div 
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-12 border-t border-hairline"
+        {/* 3D Perspective Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-12 border-t border-hairline"
           style={{ borderColor: currentProperty.borderTone }}
         >
           {metrics.map((m) => (
-            <div key={m.label} className="flex flex-col space-y-1">
-              <span 
-                className="font-display text-4xl sm:text-5xl md:text-6xl tracking-tight leading-none"
-                style={{ color: currentProperty.textTone }}
-              >
-                {m.value}
-              </span>
-              <span 
-                className="text-[9px] font-mono tracking-super-wide uppercase opacity-60"
-                style={{ color: currentProperty.subtleTone }}
-              >
-                {m.label}
-              </span>
-            </div>
+            <ThreeDTiltCard
+              key={m.label}
+              maxTilt={10}
+              className="p-6 border-hairline flex flex-col justify-between"
+            >
+              <div style={{ transform: 'translateZ(25px)' }}>
+                <div className="flex items-center justify-between mb-4">
+                  <Box className="w-3.5 h-3.5 opacity-40" style={{ color: currentProperty.textTone }} />
+                  <span className="text-[8px] font-mono opacity-50 tracking-widest uppercase" style={{ color: currentProperty.subtleTone }}>
+                    {m.detail}
+                  </span>
+                </div>
+                <span 
+                  className="font-display text-4xl sm:text-5xl md:text-6xl tracking-tight leading-none block"
+                  style={{ color: currentProperty.textTone }}
+                >
+                  {m.value}
+                </span>
+                <span 
+                  className="text-[9px] font-mono tracking-super-wide uppercase opacity-60 mt-3 block"
+                  style={{ color: currentProperty.subtleTone }}
+                >
+                  {m.label}
+                </span>
+              </div>
+            </ThreeDTiltCard>
           ))}
         </div>
       </div>

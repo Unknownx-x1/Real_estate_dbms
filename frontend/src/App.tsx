@@ -18,7 +18,10 @@ export const App: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const [isIndexOpen, setIsIndexOpen] = useState(false);
-  const touchStartXRef = useRef<number | null>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const lastHorizontalScrollTimeRef = useRef<number>(0);
+  const pointerStartXRef = useRef<number | null>(null);
+  const accumulatedDeltaXRef = useRef<number>(0);
 
   const activeProperty = PROPERTIES[currentIndex];
   const total = PROPERTIES.length;
@@ -36,6 +39,33 @@ export const App: React.FC = () => {
     setCurrentIndex(index);
   }, []);
 
+  // Trackpad horizontal two-finger scroll listener on hero
+  useEffect(() => {
+    const heroEl = heroRef.current;
+    if (!heroEl) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // If user is scrolling horizontally with trackpad (left-to-right / right-to-left)
+      if (Math.abs(e.deltaX) > 10 && Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
+        accumulatedDeltaXRef.current += e.deltaX;
+
+        const now = Date.now();
+        if (Math.abs(accumulatedDeltaXRef.current) > 30 && now - lastHorizontalScrollTimeRef.current > 550) {
+          if (accumulatedDeltaXRef.current > 0) {
+            handleNext();
+          } else {
+            handlePrev();
+          }
+          lastHorizontalScrollTimeRef.current = now;
+          accumulatedDeltaXRef.current = 0;
+        }
+      }
+    };
+
+    heroEl.addEventListener('wheel', handleWheel, { passive: true });
+    return () => heroEl.removeEventListener('wheel', handleWheel);
+  }, [handleNext, handlePrev]);
+
   // Keyboard navigation (Arrow keys)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -49,7 +79,7 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNext, handlePrev]);
 
-  // Subtle Mouse Parallax Handler
+  // Mouse Parallax
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const { innerWidth, innerHeight } = window;
     const x = (e.clientX - innerWidth / 2) / (innerWidth / 2);
@@ -57,24 +87,24 @@ export const App: React.FC = () => {
     setMouseOffset({ x, y });
   }, []);
 
-  // Touch Swipe Handlers on Hero (Horizontal carousel gestures)
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartXRef.current = e.touches[0].clientX;
+  // Pointer / Touch drag handlers for instant left/right swipe or drag
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartXRef.current = e.clientX;
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchEndX - touchStartXRef.current;
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (pointerStartXRef.current === null) return;
+    const deltaX = e.clientX - pointerStartXRef.current;
 
-    if (Math.abs(deltaX) > 45) {
+    // If dragged horizontally more than 40px
+    if (Math.abs(deltaX) > 40) {
       if (deltaX < 0) {
         handleNext();
       } else {
         handlePrev();
       }
     }
-    touchStartXRef.current = null;
+    pointerStartXRef.current = null;
   };
 
   const scrollToExplore = () => {
@@ -110,12 +140,14 @@ export const App: React.FC = () => {
 
       {/* ========================================================================= */}
       {/* SECTION 1: FULL-VIEWPORT 3D IMMERSIVE HERO (#hero) */}
+      {/* Supports Trackpad 2-finger horizontal scroll and mouse/pointer drag */}
       {/* ========================================================================= */}
       <section
         id="hero"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        className="relative w-full h-screen overflow-hidden flex flex-col justify-between"
+        ref={heroRef}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        className="relative w-full h-screen overflow-hidden flex flex-col justify-between cursor-grab active:cursor-grabbing"
       >
         {/* Enormous Structural Background Typography */}
         <GiantBackgroundTypography 

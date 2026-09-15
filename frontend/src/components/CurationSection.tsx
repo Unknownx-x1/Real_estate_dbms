@@ -1,5 +1,8 @@
+import React from 'react';
 import type { PropertyItem } from '../types/property';
 import { ShieldCheck, Box, Compass } from 'lucide-react';
+import { ThreeDTiltCard } from './ThreeDTiltCard';
+import { ThreeDArchitecturalModel } from './ThreeDArchitecturalModel';
 
 interface CurationSectionProps {
   currentProperty: PropertyItem;
@@ -7,7 +10,7 @@ interface CurationSectionProps {
 
 /**
  * Section: Curation & Methodology (#curation)
- * Explains what the platform is and what it does through an architectural magazine spread.
+ * Enriched with an Interactive 3D Axonometric Structural Model and 3D Extruded Pillar Slabs.
  */
 export const CurationSection: React.FC<CurationSectionProps> = ({ currentProperty }) => {
   const pillars = [
@@ -48,7 +51,7 @@ export const CurationSection: React.FC<CurationSectionProps> = ({ currentPropert
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Title Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-baseline mb-20 md:mb-28">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-baseline mb-16 md:mb-20">
           <div className="lg:col-span-8">
             <span 
               className="text-[10px] font-mono uppercase tracking-super-wide opacity-60 block mb-4"
@@ -75,21 +78,20 @@ export const CurationSection: React.FC<CurationSectionProps> = ({ currentPropert
           </div>
         </div>
 
-        {/* 3 Pillars with 3D Depth Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 perspective-stage">
+        {/* Interactive 3D Axonometric Structural Model */}
+        <ThreeDArchitecturalModel currentProperty={currentProperty} />
+
+        {/* 3 Pillars in 3D Extruded Tilt Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
           {pillars.map((pillar) => {
             const Icon = pillar.icon;
             return (
-              <div
+              <ThreeDTiltCard
                 key={pillar.num}
-                className="relative p-8 md:p-10 border-hairline flex flex-col justify-between transition-all duration-500 hover:-translate-y-2 hover:shadow-xl group"
-                style={{
-                  borderColor: currentProperty.borderTone,
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)',
-                }}
+                maxTilt={12}
+                className="relative p-8 md:p-10 border-hairline flex flex-col justify-between shadow-lg"
               >
-                <div>
+                <div style={{ transform: 'translateZ(30px)' }}>
                   {/* Pillar Number in Display Font */}
                   <div className="flex items-center justify-between mb-8">
                     <span 
@@ -128,12 +130,16 @@ export const CurationSection: React.FC<CurationSectionProps> = ({ currentPropert
 
                 <div 
                   className="mt-8 pt-4 border-t border-hairline text-[9px] font-mono uppercase tracking-widest opacity-40 flex items-center justify-between"
-                  style={{ borderColor: currentProperty.borderTone, color: currentProperty.subtleTone }}
+                  style={{ 
+                    borderColor: currentProperty.borderTone, 
+                    color: currentProperty.subtleTone,
+                    transform: 'translateZ(20px)'
+                  }}
                 >
                   <span>CRITERION SPEC // 0{pillar.num}</span>
                   <span>VERIFIED</span>
                 </div>
-              </div>
+              </ThreeDTiltCard>
             );
           })}
         </div>

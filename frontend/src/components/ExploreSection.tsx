@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { PropertyItem } from '../types/property';
 import { ArrowUpRight, Compass, Layers } from 'lucide-react';
+import { ThreeDTiltCard } from './ThreeDTiltCard';
 
 interface ExploreSectionProps {
   properties: PropertyItem[];
@@ -10,15 +11,13 @@ interface ExploreSectionProps {
 
 /**
  * Section: Spatial Discovery & Architectural Archive (#explore)
- * 3D perspective grid showcasing residences with structural blueprints and material specs.
+ * Enhanced with genuine interactive 3D Tilt Cards, Z-space depth, and specular glares.
  */
 export const ExploreSection: React.FC<ExploreSectionProps> = ({
   properties,
   currentProperty,
   onSelectProperty,
 }) => {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
   return (
     <section 
       id="explore" 
@@ -50,64 +49,68 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
           style={{ color: currentProperty.subtleTone }}
         >
           Each residence in the Monolith collection is an indivisible architectural work. 
-          Curated for volumetric proportion, geological siting, and structural integrity.
+          Hover over each monograph to inspect structural dimensions in 3D perspective.
         </p>
       </div>
 
       {/* 3D Perspective Property Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 perspective-stage">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
         {properties.map((item, index) => {
-          const isHovered = hoveredId === item.id;
-          
           return (
-            <div
+            <ThreeDTiltCard
               key={item.id}
-              onMouseEnter={() => setHoveredId(item.id)}
-              onMouseLeave={() => setHoveredId(null)}
+              maxTilt={14}
               onClick={() => {
                 onSelectProperty(index);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group relative flex flex-col cursor-pointer transition-all duration-500 ease-out will-change-transform"
-              style={{
-                transform: isHovered 
-                  ? 'translateY(-12px) rotateX(4deg) scale(1.02)' 
-                  : 'translateY(0) rotateX(0deg) scale(1)',
-                transformStyle: 'preserve-3d',
-              }}
+              className="group flex flex-col"
             >
-              {/* Image Frame */}
-              <div className="relative aspect-[4/3.2] overflow-hidden border-hairline transition-all duration-500"
-                style={{ borderColor: item.borderTone }}
+              {/* Image Frame with 3D Pop Elements */}
+              <div 
+                className="relative aspect-[4/3.2] overflow-hidden border-hairline transition-all duration-500 bg-black/10"
+                style={{ 
+                  borderColor: item.borderTone,
+                  transformStyle: 'preserve-3d',
+                }}
               >
                 <img
                   src={item.heroImage}
                   alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter group-hover:contrast-[1.05]"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
                   loading="lazy"
                 />
 
-                {/* Floating Architectural Badge */}
+                {/* Floating Architectural Badge (Elevated in 3D Z-Space) */}
                 <div 
-                  className="absolute top-3 left-3 text-[9px] font-mono tracking-widest px-2 py-0.5 backdrop-blur-md uppercase"
+                  className="absolute top-3 left-3 text-[9px] font-mono tracking-widest px-2.5 py-1 backdrop-blur-md uppercase shadow-lg transition-transform duration-300"
                   style={{
-                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    backgroundColor: 'rgba(0,0,0,0.7)',
                     color: '#F4F1EA',
+                    transform: 'translateZ(35px)',
                   }}
                 >
                   {item.code}
                 </div>
 
+                {/* Hover CTA Button (Elevated in 3D Z-Space) */}
                 <div 
-                  className="absolute bottom-3 right-3 p-2 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full"
-                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)', color: '#1A1817' }}
+                  className="absolute bottom-3 right-3 p-2.5 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full shadow-2xl"
+                  style={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.92)', 
+                    color: '#1A1817',
+                    transform: 'translateZ(45px)',
+                  }}
                 >
                   <ArrowUpRight className="w-4 h-4" />
                 </div>
               </div>
 
-              {/* Metadata Block */}
-              <div className="mt-4 flex flex-col space-y-1.5">
+              {/* Metadata Block (Elevated in 3D Z-Space) */}
+              <div 
+                className="mt-4 flex flex-col space-y-1.5 transition-transform duration-300"
+                style={{ transform: 'translateZ(25px)' }}
+              >
                 <div className="flex items-center justify-between">
                   <span 
                     className="text-[10px] font-mono uppercase tracking-widest opacity-60"
@@ -124,7 +127,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                 </div>
 
                 <h3 
-                  className="text-lg md:text-xl font-editorial font-bold uppercase tracking-tight transition-colors duration-300 group-hover:opacity-75"
+                  className="text-lg md:text-xl font-editorial font-bold uppercase tracking-tight transition-colors duration-300 group-hover:opacity-80"
                   style={{ color: currentProperty.textTone }}
                 >
                   {item.name}
@@ -137,7 +140,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                   {item.location} • {item.size}
                 </p>
 
-                {/* Architectural Material Blueprint pill */}
+                {/* Architectural Material Spec */}
                 <div 
                   className="pt-2 text-[9px] font-mono uppercase tracking-widest opacity-50 flex items-center space-x-1.5"
                   style={{ color: currentProperty.subtleTone }}
@@ -146,7 +149,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                   <span className="truncate">{item.materials}</span>
                 </div>
               </div>
-            </div>
+            </ThreeDTiltCard>
           );
         })}
       </div>
