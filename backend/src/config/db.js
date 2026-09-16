@@ -17,7 +17,8 @@ const poolConfig = {
 };
 
 // Enable SSL if explicitly configured or if connecting to cloud provider
-if (process.env.DB_SSL === 'true' || (connectionString && connectionString.includes('sslmode=require'))) {
+const isRemoteDb = connectionString && !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1');
+if (process.env.DB_SSL === 'true' || (connectionString && connectionString.includes('sslmode=require')) || isRemoteDb) {
     poolConfig.ssl = { rejectUnauthorized: false };
 }
 
