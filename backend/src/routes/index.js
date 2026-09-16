@@ -27,4 +27,26 @@ router.use('/transactions', transactionRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/reviews', reviewRoutes);
 
+// Seed & Database Rebuild Endpoints (For easy cloud deployment initialization & demo reset)
+const { seedDatabase } = require('../../scripts/seedDb');
+const { initDatabase } = require('../../scripts/initDb');
+
+router.post('/seed', async (req, res, next) => {
+    try {
+        const result = await seedDatabase();
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/db-init', async (req, res, next) => {
+    try {
+        const result = await initDatabase();
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

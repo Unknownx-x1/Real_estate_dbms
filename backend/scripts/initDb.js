@@ -11,13 +11,16 @@ const { Pool } = require('pg');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/real_estate_db';
+const isRemoteDb = connectionString && !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1');
 
-const pool = new Pool({
-    connectionString,
-    ssl: process.env.DB_SSL === 'true' || (connectionString && connectionString.includes('sslmode=require')) 
-        ? { rejectUnauthorized: false } 
-        : false
-});
+function getPool() {
+    return new Pool({
+        connectionString,
+        ssl: process.env.DB_SSL === 'true' || (connectionString && connectionString.includes('sslmode=require')) || isRemoteDb
+            ? { rejectUnauthorized: false } 
+            : false
+    });
+}
 
 async function runSqlFile(client, relativePath) {
     const fullPath = path.resolve(__dirname, '../../', relativePath);
@@ -31,6 +34,7 @@ async function runSqlFile(client, relativePath) {
 }
 
 async function initDatabase() {
+    const pool = getPool();
     const client = await pool.connect();
     try {
         console.log('====================================================================');
@@ -49,14 +53,19 @@ async function initDatabase() {
         console.log('====================================================================');
         console.log('✓ ALL 13 RELATIONS, CONSTRAINTS, VIEWS, TRIGGERS & SEED DATA APPLIED');
         console.log('====================================================================');
+        return { success: true, message: 'Database initialized and seeded successfully' };
     } catch (err) {
         console.error('[Error] Database initialization failed:');
         console.error(err.message);
-        process.exit(1);
+        throw err;
     } finally {
         client.release();
         await pool.end();
     }
 }
 
-initDatabase();
+module.exports = { initDatabase };
+
+if (require.main === module) {
+    initDatabase().catch(() => process.exit(1));
+}

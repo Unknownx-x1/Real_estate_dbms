@@ -23,6 +23,7 @@ import {
   Layers,
   Edit2,
   Trash2,
+  Database,
 } from 'lucide-react';
 
 interface AgentDashboardProps {
@@ -165,6 +166,21 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     await loadAllData();
   };
 
+  // Handle Re-seed Demo Data
+  const handleSeedDemoData = async () => {
+    if (!confirm('Re-seed database with clean demo dataset across all 13 relations?')) return;
+    setLoading(true);
+    try {
+      const res = await apiClient.seedDatabase();
+      showNotification(res.message);
+      await loadAllData();
+    } catch {
+      showNotification('Failed to re-seed database.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle Atomic Offer Acceptance
   const handleExecuteAtomicAcceptance = async () => {
     if (!confirmAcceptOffer) return;
@@ -281,6 +297,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 title="Refresh Live Database"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={handleSeedDemoData}
+                className="p-3 border border-white/20 hover:border-amber-400 text-amber-400 hover:bg-amber-950/30 transition-colors flex items-center space-x-1.5 text-[9px] font-mono uppercase tracking-widest"
+                title="Re-seed database with standard 13-relation demo data"
+              >
+                <Database className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">RE-SEED DATA</span>
               </button>
             </div>
           </div>

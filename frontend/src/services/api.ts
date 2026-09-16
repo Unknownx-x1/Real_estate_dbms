@@ -669,4 +669,133 @@ export const apiClient = {
     mockReviews.unshift(newReview);
     return newReview;
   },
+
+  // --- SEED DATABASE ---
+  async seedDatabase(): Promise<{ success: boolean; message: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/seed`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        return data;
+      }
+    } catch {}
+
+    // Reset in-memory store
+    mockListings = [
+      {
+        listingId: 1,
+        propertyId: 1,
+        propertyName: 'The Cantilever House',
+        location: 'Algarve Coast, Portugal',
+        propertyType: 'Brutalist Cliff Residence',
+        listPrice: 4850000,
+        listedDate: '2024-01-15',
+        status: 'ACTIVE',
+        agentId: 1,
+        agentName: 'Ethan Miller (Atelier)',
+        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+        areaSqFt: 6400,
+      },
+      {
+        listingId: 2,
+        propertyId: 2,
+        propertyName: 'Villa Obsidian',
+        location: 'Ticino, Switzerland',
+        propertyType: 'Geometric Monolith Villa',
+        listPrice: 7200000,
+        listedDate: '2024-02-01',
+        status: 'ACTIVE',
+        agentId: 1,
+        agentName: 'Ethan Miller (Atelier)',
+        image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
+        areaSqFt: 7850,
+      },
+      {
+        listingId: 3,
+        propertyId: 3,
+        propertyName: 'The Ochre Sanctuary',
+        location: 'Kyoto Outskirts, Japan',
+        propertyType: 'Nordic Earth Pavilion',
+        listPrice: 4500000,
+        listedDate: '2023-12-10',
+        status: 'SOLD',
+        agentId: 2,
+        agentName: 'Fiona Clark (Atelier)',
+        image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+        areaSqFt: 5100,
+      },
+      {
+        listingId: 4,
+        propertyId: 4,
+        propertyName: 'Casa Del Desierto',
+        location: 'Sonora Valley, Mexico',
+        propertyType: 'Desert Rammed-Earth Retreat',
+        listPrice: 3650000,
+        listedDate: '2024-03-01',
+        status: 'ACTIVE',
+        agentId: 2,
+        agentName: 'Fiona Clark (Atelier)',
+        image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+        areaSqFt: 4800,
+      },
+    ];
+
+    mockOffers = [
+      {
+        offerId: 101,
+        customerId: 1,
+        customerName: 'Alice Smith',
+        listingId: 1,
+        propertyName: 'The Cantilever House',
+        offerAmount: 4700000,
+        offerDate: '2024-03-12',
+        status: 'PENDING',
+      },
+      {
+        offerId: 102,
+        customerId: 1,
+        customerName: 'Alice Smith',
+        listingId: 2,
+        propertyName: 'Villa Obsidian',
+        offerAmount: 7000000,
+        offerDate: '2024-02-18',
+        status: 'ACCEPTED',
+      },
+      {
+        offerId: 103,
+        customerId: 2,
+        customerName: 'Julian Vance',
+        listingId: 1,
+        propertyName: 'The Cantilever House',
+        offerAmount: 4600000,
+        offerDate: '2024-03-10',
+        status: 'PENDING',
+      },
+    ];
+
+    mockTransactions = [
+      {
+        transactionId: 1,
+        listingId: 3,
+        propertyName: 'The Ochre Sanctuary',
+        transactionType: 'SALE',
+        transactionDate: '2024-01-15',
+        amount: 4500000,
+        registrationOrLease: 'REG-2024-KYOTO-0081',
+        paymentsPaid: 4500000,
+      },
+      {
+        transactionId: 2,
+        listingId: 2,
+        propertyName: 'Villa Obsidian',
+        transactionType: 'SALE',
+        transactionDate: '2024-02-18',
+        amount: 7000000,
+        registrationOrLease: 'REG-2024-TICINO-0142',
+        paymentsPaid: 3500000,
+      },
+    ];
+
+    return { success: true, message: 'Database and local memory re-seeded with demonstration dataset.' };
+  },
 };
