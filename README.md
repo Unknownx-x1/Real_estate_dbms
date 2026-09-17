@@ -557,9 +557,25 @@ When an Atelier broker clicks **"ACCEPT & EXECUTE ATOMIC SALE"**, the backend ex
 
 ---
 
+### 7.6 Interactive SQL Query Terminal & Schema Explorer (`SqlQueryWindow.tsx`)
+Designed specifically for academic evaluation, professor queries, and real-time relational verification:
+* **Direct Raw Execution**: Allows writing and executing arbitrary PostgreSQL SQL statements (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `EXPLAIN ANALYZE`).
+* **Execution Metrics**: High-resolution latency profiling (`performance.now()`) measuring execution time in milliseconds alongside affected row count and SQL command verbs.
+* **1-Click 13-Relation Schema Explorer**: Interactive collapsible sidebar introspecting live database catalog definitions (`information_schema.tables` and `columns`) with single-click query generation.
+* **Curated Query Preset Library**: Pre-loaded templates for the 5-table master join, agent commission aggregations, typology market pricing, CTE window functions (`DENSE_RANK`), database views, and intentional trigger invariant tests (`trg_validate_ownership_share`).
+* **Tabular Result Grid**: Sticky headers, monospace formatting, formatted `NULL` values, alternating row stripes, and instant export to CSV or JSON.
+* **PostgreSQL Error Diagnostic Panel**: Displays exact SQLSTATE error codes (`23514`, `23505`, `P0001`), violated constraints, and syntax position markers.
+* **1-Click Demo Reset & Pre-seed**: Instant full-database re-seeding with standard demonstration datasets.
+
+---
+
 ## 8. Complete REST API Reference
 
 All endpoints return uniform JSON responses. Protected endpoints require the header `Authorization: Bearer <jwt_token>`.
+
+### SQL Query Terminal & Schema Introspection (`/api/query`)
+* `POST /api/query/execute`: Executes arbitrary raw SQL statement against PostgreSQL connection pool and returns tabular rows, fields, row count, and execution latency in ms.
+* `GET /api/query/schema`: Introspects `information_schema` and returns list of tables and columns with data types.
 
 ### Authentication (`/api/auth`)
 * `POST /api/auth/register`: Atomic registration of a new `PERSON` and either `CUSTOMER` or `AGENT`.

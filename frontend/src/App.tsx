@@ -16,10 +16,11 @@ import { IndexModal } from './components/IndexModal';
 import { SignInModal } from './components/SignInModal';
 import { PatronDashboard } from './components/dashboards/PatronDashboard';
 import { AgentDashboard } from './components/dashboards/AgentDashboard';
+import { SqlQueryWindow } from './components/SqlQueryWindow';
 import type { UserSession } from './services/api';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'landing' | 'patron' | 'agent'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'patron' | 'agent' | 'sql'>('landing');
   const [session, setSession] = useState<UserSession | null>(null);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -153,6 +154,11 @@ export const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const openSqlConsole = () => {
+    setCurrentView('sql');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   const handleLoginSuccess = (newSession: UserSession) => {
     setSession(newSession);
     if (newSession.role === 'CUSTOMER') {
@@ -168,6 +174,20 @@ export const App: React.FC = () => {
     setCurrentView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // --- RENDER SQL QUERY WINDOW ---
+  if (currentView === 'sql') {
+    return (
+      <SqlQueryWindow
+        onBack={() => {
+          setCurrentView('landing');
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+        onNavigatePatron={openPatronPortal}
+        onNavigateAgent={openAgentPortal}
+      />
+    );
+  }
 
   // --- RENDER PATRON DASHBOARD ---
   if (currentView === 'patron') {
@@ -187,6 +207,7 @@ export const App: React.FC = () => {
         session={activePatronSession}
         onNavigateHome={() => setCurrentView('landing')}
         onSwitchToAgent={openAgentPortal}
+        onOpenSqlQuery={openSqlConsole}
       />
     );
   }
@@ -209,6 +230,7 @@ export const App: React.FC = () => {
         session={activeAgentSession}
         onNavigateHome={() => setCurrentView('landing')}
         onSwitchToPatron={openPatronPortal}
+        onOpenSqlQuery={openSqlConsole}
       />
     );
   }
@@ -230,6 +252,7 @@ export const App: React.FC = () => {
         onOpenSignIn={() => setIsSignInOpen(true)}
         onOpenPatronPortal={openPatronPortal}
         onOpenAgentPortal={openAgentPortal}
+        onOpenSqlQuery={openSqlConsole}
         session={session}
         onSignOut={handleSignOut}
       />

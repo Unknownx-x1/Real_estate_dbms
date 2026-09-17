@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, LogOut, User, Briefcase } from 'lucide-react';
+import { Search, LogOut, User, Briefcase, Terminal } from 'lucide-react';
 import type { PropertyItem } from '../types/property';
 import type { UserSession } from '../services/api';
 
@@ -9,6 +9,7 @@ interface HeaderNavProps {
   onOpenSignIn?: () => void;
   onOpenPatronPortal?: () => void;
   onOpenAgentPortal?: () => void;
+  onOpenSqlQuery?: () => void;
   session?: UserSession | null;
   onSignOut?: () => void;
 }
@@ -24,6 +25,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onOpenSignIn,
   onOpenPatronPortal,
   onOpenAgentPortal,
+  onOpenSqlQuery,
   session,
   onSignOut,
 }) => {
@@ -101,6 +103,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           <Briefcase className="w-3 h-3 opacity-60" />
           <span>ATELIER</span>
         </button>
+
+        {onOpenSqlQuery && (
+          <button
+            onClick={onOpenSqlQuery}
+            className="text-[10px] uppercase tracking-widest-editorial font-medium transition-all duration-300 hover:opacity-100 flex items-center space-x-1.5 px-2.5 py-1 rounded border border-current/20 hover:bg-current/10"
+            style={{ color: currentProperty.textTone, opacity: 0.95 }}
+            title="Open Interactive SQL Query Console"
+          >
+            <Terminal className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+            <span className="font-semibold">SQL QUERY</span>
+          </button>
+        )}
       </nav>
 
       {/* Top Right: Search, Session Status & Sign In */}

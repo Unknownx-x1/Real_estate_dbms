@@ -16,6 +16,7 @@ const offerRoutes = require('./offerRoutes');
 const transactionRoutes = require('./transactionRoutes');
 const paymentRoutes = require('./paymentRoutes');
 const reviewRoutes = require('./reviewRoutes');
+const queryRoutes = require('./queryRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/property-types', propertyTypeRoutes);
@@ -26,6 +27,7 @@ router.use('/offers', offerRoutes);
 router.use('/transactions', transactionRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/reviews', reviewRoutes);
+router.use('/query', queryRoutes);
 
 // Seed & Database Rebuild Endpoints (For easy cloud deployment initialization & demo reset)
 const { seedDatabase } = require('../../scripts/seedDb');

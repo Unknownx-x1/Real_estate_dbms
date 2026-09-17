@@ -24,18 +24,21 @@ import {
   ChevronRight,
   ArrowLeft,
   Sparkles,
+  Terminal,
 } from 'lucide-react';
 
 interface PatronDashboardProps {
   session: UserSession;
   onNavigateHome: () => void;
   onSwitchToAgent: () => void;
+  onOpenSqlQuery?: () => void;
 }
 
 export const PatronDashboard: React.FC<PatronDashboardProps> = ({
   session,
   onNavigateHome,
   onSwitchToAgent,
+  onOpenSqlQuery,
 }) => {
   const [activeTab, setActiveTab] = useState<'offers' | 'portfolio' | 'settlement' | 'reviews'>('offers');
   const [loading, setLoading] = useState(true);
@@ -198,6 +201,17 @@ export const PatronDashboard: React.FC<PatronDashboardProps> = ({
             <span className="font-bold uppercase tracking-wider">{session.name}</span>
             <span className="opacity-50 text-[9px]">ID: PATRON-00{session.customerId || 1} • VERIFIED ACCREDITATION</span>
           </div>
+
+          {onOpenSqlQuery && (
+            <button
+              onClick={onOpenSqlQuery}
+              className="px-3 py-1.5 border border-black/30 hover:border-black bg-black/5 hover:bg-black/10 transition-colors text-[9px] uppercase tracking-widest flex items-center space-x-1.5 text-[#1A1C1E]"
+              title="Launch Interactive Relational SQL Query Console"
+            >
+              <Terminal className="w-3 h-3 text-emerald-700" />
+              <span className="font-bold">SQL CONSOLE</span>
+            </button>
+          )}
 
           <button
             onClick={onSwitchToAgent}

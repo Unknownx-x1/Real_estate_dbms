@@ -24,18 +24,21 @@ import {
   Edit2,
   Trash2,
   Database,
+  Terminal,
 } from 'lucide-react';
 
 interface AgentDashboardProps {
   session: UserSession;
   onNavigateHome: () => void;
   onSwitchToPatron: () => void;
+  onOpenSqlQuery?: () => void;
 }
 
 export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   session,
   onNavigateHome,
   onSwitchToPatron,
+  onOpenSqlQuery,
 }) => {
   const [activeTab, setActiveTab] = useState<'inventory' | 'offers' | 'transactions' | 'analytics'>('inventory');
   const [loading, setLoading] = useState(true);
@@ -245,6 +248,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             <span className="font-bold uppercase tracking-wider">{session.name}</span>
             <span className="opacity-50 text-[9px]">ID: BROKER-00{session.agentId || 1} • LICENSED NOTARY ATELIER</span>
           </div>
+
+          {onOpenSqlQuery && (
+            <button
+              onClick={onOpenSqlQuery}
+              className="px-3 py-1.5 border border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/30 hover:bg-emerald-950/60 transition-colors text-[9px] uppercase tracking-widest flex items-center space-x-1.5 text-emerald-300"
+              title="Launch Interactive Relational SQL Query Console"
+            >
+              <Terminal className="w-3 h-3 text-emerald-400" />
+              <span>SQL CONSOLE</span>
+            </button>
+          )}
 
           <button
             onClick={onSwitchToPatron}
