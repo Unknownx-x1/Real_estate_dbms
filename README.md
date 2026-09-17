@@ -38,7 +38,7 @@ The system implements **13 relations normalized to Boyce-Codd Normal Form (BCNF)
 Unlike conventional commercial SaaS templates with saturated purple gradients and generic dashboard cards, Monolith is inspired by elite European architectural monographs (*El Croquis*, *Detail*, *C3*):
 * **Palette**: Warm limestone (`#D8D2C6` / `#D5CEC3`), cast concrete (`#BFC5C9` / `#C7CCD1`), deep basalt charcoal (`#1A1C1E`), and muted ivory (`#F4F1EA`).
 * **Typography**: Structural display headlines in `Anton`, editorial titling in `Syne`, body text in `Inter`, and cryptographic hashes, notary deed numbers, and valuations in `JetBrains Mono`.
-* **Micro-Interactions**: Real-time film-grain noise overlay, $360^\circ$ orbital WebGL villa rendering, daylight/dusk lighting toggles, 3D perspective tilt cards with specular reflection sheens, and 2-finger horizontal trackpad scrolling.
+* **Micro-Interactions**: Real-time film-grain noise overlay, 360° orbital WebGL villa rendering, daylight/dusk lighting toggles, 3D perspective tilt cards with specular reflection sheens, and 2-finger horizontal trackpad scrolling.
 
 ### Engineering & Database Philosophy
 * **Zero-ORM Policy**: Built entirely without ORM abstraction layers (no Prisma, Sequelize, or TypeORM). All queries are written in raw, parameterized SQL using `node-postgres` (`pg-pool`) to guarantee auditable query plans, lock discipline, and explicit relational algebra.
@@ -157,20 +157,20 @@ The database captures **13 relations** and **14 cardinalities**, strictly enforc
 
 | Entity A | Relationship | Cardinality | Entity B | Participation | Enforcement Mechanism |
 | :--- | :--- | :---: | :--- | :--- | :--- |
-| `PERSON` | Subtyped into | $1:1$ | `CUSTOMER` | Optional (A) / Mandatory (B) | FK `CUSTOMER.PersonID` with `UNIQUE` |
-| `PERSON` | Subtyped into | $1:1$ | `AGENT` | Optional (A) / Mandatory (B) | FK `AGENT.PersonID` with `UNIQUE` |
-| `PROPERTY_TYPE` | Categorizes | $1:N$ | `PROPERTY` | Mandatory (A) / Mandatory (B) | FK `PROPERTY.PropertyTypeID` |
-| `CUSTOMER` | Owns title in | $N:M$ | `PROPERTY` | Optional (A) / Mandatory (B) | Junction table `OWNERSHIP(CustomerID, PropertyID)` |
-| `AGENT` | Represents | $1:N$ | `LISTING` | Optional (A) / Mandatory (B) | FK `LISTING.AgentID` |
-| `PROPERTY` | Listed as | $1:N$ | `LISTING` | Optional (A) / Mandatory (B) | FK `LISTING.PropertyID` |
-| `CUSTOMER` | Submits | $1:N$ | `OFFER` | Optional (A) / Mandatory (B) | FK `OFFER.CustomerID` |
-| `LISTING` | Receives | $1:N$ | `OFFER` | Optional (A) / Mandatory (B) | FK `OFFER.ListingID` |
-| `LISTING` | Settles in | $1:N$ | `TRANSACTION` | Optional (A) / Mandatory (B) | FK `TRANSACTION.ListingID` |
-| `TRANSACTION` | Specializes as | $1:1$ | `SALE_TRANSACTION`| Optional (A) / Mandatory (B) | Trigger `trg_check_sale_subtype` |
-| `TRANSACTION` | Specializes as | $1:1$ | `RENTAL_CONTRACT` | Optional (A) / Mandatory (B) | Trigger `trg_check_rental_subtype` |
-| `TRANSACTION` | Settled by | $1:N$ | `PAYMENT` | Mandatory (A) / Mandatory (B) | FK `PAYMENT.TransactionID` |
-| `CUSTOMER` | Authors | $1:N$ | `REVIEW` | Optional (A) / Mandatory (B) | FK `REVIEW.CustomerID` |
-| `LISTING` | Subject of | $1:N$ | `REVIEW` | Optional (A) / Mandatory (B) | FK `REVIEW.ListingID` |
+| `PERSON` | Subtyped into | 1:1 | `CUSTOMER` | Optional (A) / Mandatory (B) | FK `CUSTOMER.PersonID` with `UNIQUE` |
+| `PERSON` | Subtyped into | 1:1 | `AGENT` | Optional (A) / Mandatory (B) | FK `AGENT.PersonID` with `UNIQUE` |
+| `PROPERTY_TYPE` | Categorizes | 1:N | `PROPERTY` | Mandatory (A) / Mandatory (B) | FK `PROPERTY.PropertyTypeID` |
+| `CUSTOMER` | Owns title in | N:M | `PROPERTY` | Optional (A) / Mandatory (B) | Junction table `OWNERSHIP(CustomerID, PropertyID)` |
+| `AGENT` | Represents | 1:N | `LISTING` | Optional (A) / Mandatory (B) | FK `LISTING.AgentID` |
+| `PROPERTY` | Listed as | 1:N | `LISTING` | Optional (A) / Mandatory (B) | FK `LISTING.PropertyID` |
+| `CUSTOMER` | Submits | 1:N | `OFFER` | Optional (A) / Mandatory (B) | FK `OFFER.CustomerID` |
+| `LISTING` | Receives | 1:N | `OFFER` | Optional (A) / Mandatory (B) | FK `OFFER.ListingID` |
+| `LISTING` | Settles in | 1:N | `TRANSACTION` | Optional (A) / Mandatory (B) | FK `TRANSACTION.ListingID` |
+| `TRANSACTION` | Specializes as | 1:1 | `SALE_TRANSACTION`| Optional (A) / Mandatory (B) | Trigger `trg_check_sale_subtype` |
+| `TRANSACTION` | Specializes as | 1:1 | `RENTAL_CONTRACT` | Optional (A) / Mandatory (B) | Trigger `trg_check_rental_subtype` |
+| `TRANSACTION` | Settled by | 1:N | `PAYMENT` | Mandatory (A) / Mandatory (B) | FK `PAYMENT.TransactionID` |
+| `CUSTOMER` | Authors | 1:N | `REVIEW` | Optional (A) / Mandatory (B) | FK `REVIEW.CustomerID` |
+| `LISTING` | Subject of | 1:N | `REVIEW` | Optional (A) / Mandatory (B) | FK `REVIEW.ListingID` |
 
 ---
 
@@ -194,8 +194,10 @@ CREATE TABLE PERSON (
 );
 ```
 * **Keys**: Primary Key `{PersonID}`, Candidate Key `{Email}`, Candidate Key `{PhoneNo}`.
-* **Derived Attribute Elimination**: As required by database normalization, `Age` is **not stored** to avoid the transitive dependency $\text{PersonID} \rightarrow \text{DateOfBirth} \rightarrow \text{Age}$. It is computed dynamically:
-  $$\text{Age} = \text{EXTRACT}(\text{YEAR FROM AGE}(\text{CURRENT\_DATE}, \text{DateOfBirth}))$$
+* **Derived Attribute Elimination**: As required by database normalization, `Age` is **not stored** to avoid the transitive dependency `PersonID` &rarr; `DateOfBirth` &rarr; `Age`. It is computed dynamically:
+  ```sql
+  Age = EXTRACT(YEAR FROM AGE(CURRENT_DATE, DateOfBirth))
+  ```
 * **BCNF Evaluation**: Determinants `{PersonID}`, `{Email}`, and `{PhoneNo}` are all superkeys. Status: **BCNF**.
 
 ### 4.2 `CUSTOMER` (ISA Subtype)
@@ -245,7 +247,7 @@ CREATE TABLE PROPERTY (
 * **Keys**: Primary Key `{PropertyID}`.
 * **BCNF Evaluation**: All non-prime attributes functionally depend solely on `{PropertyID}`. Status: **BCNF**.
 
-### 4.6 `OWNERSHIP` ($M:N$ Associative Junction)
+### 4.6 `OWNERSHIP` (N:M Associative Junction)
 Tracks sovereign title deeds, co-ownership percentages, and deed acquisition dates.
 ```sql
 CREATE TABLE OWNERSHIP (
@@ -384,7 +386,7 @@ CREATE TABLE REVIEW (
    GROUP BY l.ListingID, p.PropertyID, pt.TypeName, a.AgentID, per.PersonID;
    ```
 2. **`agent_performance_summary`**:
-   Grouped performance aggregation computing total active consignments, closed sale volume, and gross commission yield ($3\%$) per agent.
+   Grouped performance aggregation computing total active consignments, closed sale volume, and gross commission yield (3%) per agent.
 3. **`property_ownership_summary`**:
    Aggregated ownership matrix detailing multi-owner allocations and remaining unassigned title percentages.
 
@@ -398,10 +400,12 @@ CREATE TABLE REVIEW (
   SET Status = CASE WHEN NEW.TransactionType = 'SALE' THEN 'SOLD' ELSE 'RENTED' END
   WHERE ListingID = NEW.ListingID;
   ```
-* **$100\%$ Ownership Cap Validation (`trg_validate_ownership_share`)**:
+* **100% Ownership Cap Validation (`trg_validate_ownership_share`)**:
   Fires before `INSERT` or `UPDATE` on `OWNERSHIP`. Calculates:
-  $$\sum \text{OwnershipShare}_{\text{existing}} + \text{OwnershipShare}_{\text{new}} \le 100.00$$
-  If greater than $100.00\%$, raises `EXCLUSION_VIOLATION` with message `"Total ownership share for property cannot exceed 100%"`.
+  ```sql
+  SUM(existing.OwnershipShare) + NEW.OwnershipShare <= 100.00
+  ```
+  If greater than 100.00%, raises `EXCLUSION_VIOLATION` with message `"Total ownership share for property cannot exceed 100%"`.
 
 ### 5.3 Stored Functions (`db/functions.sql`)
 * **`fn_accept_offer(p_offer_id, p_sale_price, p_reg_no)`**:
@@ -526,7 +530,7 @@ When an Atelier broker clicks **"ACCEPT & EXECUTE ATOMIC SALE"**, the backend ex
   * `TOTAL LISTED VOLUME`: Sum of all asking prices in inventory.
   * `SETTLED TRANSACTION VOLUME`: Total closed notary volume.
   * `PENDING DELIBERATIONS`: Count of incoming tenders awaiting broker review.
-  * `ATELIER YIELD (3% FEE)`: Broker commission earned ($3\%$ of settled volume).
+  * `ATELIER YIELD (3% FEE)`: Broker commission earned (3% of settled volume).
 * **Tab 1: Managed Residences (`LISTING` & `PROPERTY`) — Full CRUD**:
   * **Create (`+ PUBLISH NEW RESIDENCE` Modal)**: Inputs for property title, location, architectural typology, asking price, area, and hero image URL (`POST /api/listings`).
   * **Update (`REVISE` Modal)**: Edit residence title, location, typology, asking price, area, status (`ACTIVE`, `PENDING`, `SOLD`, `RENTED`, `INACTIVE`), and hero image (`PUT /api/listings/:id`).
@@ -534,11 +538,11 @@ When an Atelier broker clicks **"ACCEPT & EXECUTE ATOMIC SALE"**, the backend ex
 * **Tab 2: Incoming Tenders & Atomic Engine**:
   * Review all patron tenders with comparative variance against asking price.
   * **`ACCEPT & EXECUTE ATOMIC SALE` Action**: Opens the atomic confirmation modal, executing the multi-table cascade (`POST /api/transactions`).
-  * **`Reject` Action**: Rejects invalid tenders (`PATCH /api/offers/:id/status` $\rightarrow$ `'REJECTED'`).
+  * **`Reject` Action**: Rejects invalid tenders (`PATCH /api/offers/:id/status` &rarr; `'REJECTED'`).
 * **Tab 3: Executed Contracts Ledger**:
   * Permanent ledger of closed sale contracts and leases with notary registration codes.
 * **Tab 4: Atelier Analytics**:
-  * Analytical metrics: Average square footage valuation ($\$/\text{sq ft}$), offer-to-transaction ratio, and turnover velocity.
+  * Analytical metrics: Average square footage valuation ($/sq ft), offer-to-transaction ratio, and turnover velocity.
 
 ---
 
@@ -546,7 +550,7 @@ When an Atelier broker clicks **"ACCEPT & EXECUTE ATOMIC SALE"**, the backend ex
 * **Interactive Three.js 3D Villa (`ThreeDVillaViewer.tsx`)**:
   * 3D modern villa with board-formed concrete, cedar timber battens, travertine terrace, and infinity pool.
   * **Day / Dusk Lighting Toggle**: Switch between natural daylight and golden-hour evening interior illumination.
-  * **$360^\circ$ Interactive Orbit**: Drag to rotate, scroll to zoom.
+  * **360° Interactive Orbit**: Drag to rotate, scroll to zoom.
   * **Camera Presets**: `PERSPECTIVE`, `ELEVATION`, `PLAN VIEW`.
 * **Editorial Carousel**: Huge `Anton` background typography, two-finger horizontal trackpad scrolling, and mouse drag swipe.
 * **Explore Gallery (`ExploreSection.tsx`)**: 3D perspective tilt cards with specular sheen highlights reacting to mouse position.
