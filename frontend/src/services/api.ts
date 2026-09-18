@@ -851,11 +851,24 @@ export const apiClient = {
       }
 
       const errData = await res.json().catch(() => ({}));
+      if (res.status === 404 || errData.error?.code === 'NOT_FOUND') {
+        return {
+          success: false,
+          error: {
+            message: 'Endpoint POST /api/query/execute not found on backend. Please restart your backend server (press Ctrl+C in your backend terminal, then run npm start or npm run dev) to load the newly mounted query routes.',
+            code: 'SERVER_RESTART_REQUIRED',
+            hint: 'Node.js requires a server restart when new route files are added to memory. If deployed to Render/Railway, redeploy the latest commit.',
+          },
+          executionTimeMs: parseFloat((performance.now() - start).toFixed(2)),
+        };
+      }
+
       return {
         success: false,
         error: {
           message: errData.error?.message || `Server returned HTTP ${res.status}`,
           code: errData.error?.code || 'HTTP_ERROR',
+          detail: errData.error?.details || null,
         },
         executionTimeMs: parseFloat((performance.now() - start).toFixed(2)),
       };
