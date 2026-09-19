@@ -42,13 +42,12 @@ const PRESET_QUERIES: PresetQuery[] = [
     description: 'Combines LISTING, PROPERTY, PROPERTY_TYPE, AGENT, and PERSON to produce a complete market inventory ledger.',
     sql: `SELECT 
     l.ListingID,
-    p.PropertyName,
+    p.Description AS PropertyName,
     pt.TypeName AS PropertyType,
     l.ListPrice,
-    p.Location,
     p.AreaSqFt,
     ROUND(l.ListPrice / p.AreaSqFt, 2) AS PricePerSqFt,
-    per.FullName AS BrokerName,
+    CONCAT(per.FirstName, ' ', per.LastName) AS BrokerName,
     l.Status,
     l.ListedDate
 FROM LISTING l
@@ -64,8 +63,9 @@ ORDER BY l.ListPrice DESC;`
     category: 'Aggregations',
     description: 'Calculates active listings, settled deal volume, and 3% gross luxury commission yield per broker.',
     sql: `SELECT 
-    per.FullName AS AgentName,
-    a.LicenseNumber,
+    a.AgentID,
+    CONCAT(per.FirstName, ' ', per.LastName) AS AgentName,
+    per.Email AS AgentEmail,
     COUNT(l.ListingID) AS TotalListings,
     COALESCE(SUM(l.ListPrice), 0) AS TotalPortfolioValue,
     ROUND(AVG(l.ListPrice), 2) AS AvgListingPrice,
@@ -73,7 +73,7 @@ ORDER BY l.ListPrice DESC;`
 FROM AGENT a
 JOIN PERSON per ON a.PersonID = per.PersonID
 LEFT JOIN LISTING l ON a.AgentID = l.AgentID
-GROUP BY a.AgentID, per.FullName, a.LicenseNumber
+GROUP BY a.AgentID, per.FirstName, per.LastName, per.Email
 ORDER BY TotalPortfolioValue DESC;`
   },
   {
@@ -102,7 +102,7 @@ ORDER BY AvgPrice DESC;`
     description: 'Uses DENSE_RANK() OVER (PARTITION BY ... ORDER BY ...) to rank properties within their category.',
     sql: `SELECT 
     pt.TypeName,
-    p.PropertyName,
+    p.Description AS PropertyName,
     l.ListPrice,
     p.AreaSqFt,
     DENSE_RANK() OVER (PARTITION BY pt.TypeName ORDER BY l.ListPrice DESC) AS PriceRankInType,
@@ -117,18 +117,18 @@ ORDER BY pt.TypeName, PriceRankInType;`
     id: 'view-inspection',
     name: 'Inspect Database View: Active Listings',
     category: 'Views & Virtual Tables',
-    description: 'Queries the pre-defined active_listings_view relation.',
-    sql: `SELECT * FROM active_listings_view ORDER BY ListPrice DESC;`
+    description: 'Queries the pre-defined active_listings_full relation.',
+    sql: `SELECT * FROM active_listings_full ORDER BY ListPrice DESC;`
   },
   {
     id: 'trigger-test',
     name: 'Trigger Invariant Test (100% Ownership Cap)',
     category: 'Trigger Validation',
-    description: 'Tests trg_validate_ownership_share trigger by attempting to insert ownership that exceeds 100%.',
+    description: 'Tests trg_validate_ownership_share trigger by inspecting ownership distribution.',
     sql: `SELECT 
-    p.PropertyName,
+    p.Description AS PropertyName,
     c.CustomerID,
-    per.FullName AS OwnerName,
+    CONCAT(per.FirstName, ' ', per.LastName) AS OwnerName,
     o.OwnershipShare,
     o.SinceDate
 FROM OWNERSHIP o
