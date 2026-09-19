@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Logo } from './HorizonLogo';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 
 const VIDEO_1 = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260625_174131_395bc785-bb21-4e65-abf6-27c56f0764b6.mp4';
 const VIDEO_2 = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260624_055914_ee2b3b56-9a58-4885-989e-5b72a68b630d.mp4';
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onOpenInquire?: () => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({ onOpenInquire }) => {
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(false);
   const video2Ref = useRef<HTMLVideoElement>(null);
@@ -36,6 +41,13 @@ export const Hero: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToEstates = () => {
+    const el = document.getElementById('estates');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="relative h-[200dvh]">
@@ -94,27 +106,86 @@ export const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Text Block */}
-        <div className="absolute bottom-0 left-0 right-0 pb-10 sm:pb-12 md:pb-16 px-5 sm:px-6 md:px-12 text-center">
+        {/* Bottom Property Listing Presentation Block */}
+        <div className="absolute bottom-0 left-0 right-0 pb-10 sm:pb-12 md:pb-16 px-5 sm:px-6 md:px-12 text-center z-20">
+          {/* Top Pill / Listing Identifier */}
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-3 sm:mb-4 transition-all duration-[1000ms] ease-out ${
+              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ transitionDelay: '450ms' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/90">
+              FEATURED ESTATE // MALIBU BLUFFS • FREEHOLD DEED
+            </span>
+          </div>
+
+          {/* Listing Title & Price (H1) */}
           <h1
             className={`font-heading text-white text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-wide uppercase transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
             style={{ transitionDelay: '600ms' }}
           >
-            Where the horizon meets
+            The Horizon Villa
             <br />
-            timeless elegance
+            <span className="text-white/90 font-light">$18,500,000 USD</span>
           </h1>
 
+          {/* Property Specifications Line */}
+          <div
+            className={`mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[11px] sm:text-xs md:text-sm font-geist font-medium text-white/90 uppercase tracking-widest transition-all duration-[1000ms] ease-out ${
+              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+            style={{ transitionDelay: '750ms' }}
+          >
+            <span>6 Beds</span>
+            <span className="opacity-40">•</span>
+            <span>8 Baths</span>
+            <span className="opacity-40">•</span>
+            <span>9,400 Sq.Ft</span>
+            <span className="opacity-40">•</span>
+            <span>Private Beach</span>
+            <span className="opacity-40">•</span>
+            <span>Infinity Pool</span>
+          </div>
+
+          {/* Architectural Description */}
           <p
-            className={`mt-3 sm:mt-4 md:mt-6 text-white/80 font-geist font-light text-xs sm:text-sm md:text-base max-w-xs sm:max-w-md mx-auto leading-relaxed transition-all duration-[1000ms] ease-out ${
+            className={`mt-3 sm:mt-4 md:mt-5 text-white/80 font-geist font-light text-xs sm:text-sm md:text-base max-w-xs sm:max-w-xl mx-auto leading-relaxed transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
             style={{ transitionDelay: '850ms' }}
           >
-            Indulge in unparalleled seaside living where sophistication meets the endless shore.
+            An iconic contemporary coastal compound sculptured into the coastline, featuring 270° panoramic Pacific ocean views, cantilevered glass pavilions, and verified sovereign freehold title.
           </p>
+
+          {/* Action CTAs */}
+          <div
+            className={`mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-3 transition-all duration-[1000ms] ease-out ${
+              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ transitionDelay: '950ms' }}
+          >
+            <button
+              onClick={onOpenInquire}
+              className="group flex items-center gap-2 bg-white text-gray-900 rounded-full pl-5 pr-2 py-2 hover:bg-gray-100 transition-all shadow-xl cursor-pointer text-xs md:text-sm font-geist font-medium tracking-wider uppercase"
+            >
+              <span>Schedule Private Tour</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-rose-200/70 group-hover:bg-rose-300 transition-colors">
+                <ArrowRight className="w-3.5 h-3.5 text-gray-800" />
+              </span>
+            </button>
+
+            <button
+              onClick={scrollToEstates}
+              className="flex items-center gap-1.5 px-5 py-2 rounded-full border border-white/30 text-white/90 hover:text-white hover:border-white text-xs md:text-sm font-geist font-medium tracking-wider uppercase transition-colors cursor-pointer backdrop-blur-sm"
+            >
+              <span>Explore Portfolio</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </section>
     </div>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from './components/HorizonNavbar';
 import { Hero } from './components/HorizonHero';
+import { HorizonSections } from './components/HorizonSections';
+import { HorizonInquireModal } from './components/HorizonInquireModal';
 import { PatronDashboard } from './components/dashboards/PatronDashboard';
 import { AgentDashboard } from './components/dashboards/AgentDashboard';
 import { SqlQueryWindow } from './components/SqlQueryWindow';
@@ -9,6 +11,8 @@ import type { UserSession } from './services/api';
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'landing' | 'patron' | 'agent' | 'sql'>('landing');
   const [session, setSession] = useState<UserSession | null>(null);
+  const [isInquireOpen, setIsInquireOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState('The Horizon Villa • Malibu ($18,500,000)');
 
   const openPatronPortal = () => {
     if (!session || session.role !== 'CUSTOMER') {
@@ -107,15 +111,50 @@ export const App: React.FC = () => {
 
   // --- RENDER HORIZON ESTATES LANDING PAGE ---
   return (
-    <div className="bg-black">
+    <div className="bg-black min-h-screen text-white">
+      {/* Fixed Navigation */}
       <Navbar
+        onOpenInquire={() => setIsInquireOpen(true)}
         onOpenPortal={(view) => {
           if (view === 'patron') openPatronPortal();
           else if (view === 'agent') openAgentPortal();
           else if (view === 'sql') openSqlConsole();
         }}
       />
-      <Hero />
+
+      {/* Dual-Video Sticky Scroll Hero with Property Listing Presentation */}
+      <Hero
+        onOpenInquire={() => {
+          setSelectedProperty('The Horizon Villa • Malibu ($18,500,000)');
+          setIsInquireOpen(true);
+        }}
+      />
+
+      {/* Real Estate Property Listings, Story, Lifestyle, Views, and Inquire Sections */}
+      <HorizonSections
+        onSelectPropertyToInquire={(propertyTitle) => {
+          setSelectedProperty(propertyTitle);
+          setIsInquireOpen(true);
+        }}
+        onOpenPortal={(view) => {
+          if (view === 'patron') openPatronPortal();
+          else if (view === 'agent') openAgentPortal();
+          else if (view === 'sql') openSqlConsole();
+        }}
+      />
+
+      {/* Interactive Inquire & Viewing Modal */}
+      <HorizonInquireModal
+        isOpen={isInquireOpen}
+        onClose={() => setIsInquireOpen(false)}
+        selectedProperty={selectedProperty}
+        onOpenPortal={(view) => {
+          setIsInquireOpen(false);
+          if (view === 'patron') openPatronPortal();
+          else if (view === 'agent') openAgentPortal();
+          else if (view === 'sql') openSqlConsole();
+        }}
+      />
     </div>
   );
 };

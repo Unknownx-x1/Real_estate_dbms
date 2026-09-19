@@ -3,11 +3,22 @@ import { ArrowRight, Terminal, User, Briefcase } from 'lucide-react';
 import { Logo } from './HorizonLogo';
 
 interface NavbarProps {
+  onOpenInquire?: () => void;
   onOpenPortal?: (view: 'patron' | 'agent' | 'sql') => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenPortal }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenInquire, onOpenPortal }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Background blur when user scrolls down
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent background scroll when mobile menu is open
   useEffect(() => {
@@ -21,41 +32,96 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenPortal }) => {
     };
   }, [isMenuOpen]);
 
-  const navLinks = ['Story', 'Estates', 'Lifestyle', 'Views', 'Inquire'];
+  const navLinks = [
+    { label: 'Story', target: 'story' },
+    { label: 'Estates', target: 'estates' },
+    { label: 'Lifestyle', target: 'lifestyle' },
+    { label: 'Views', target: 'views' },
+    { label: 'Inquire', target: 'inquire' },
+  ];
 
-  const handleLinkClick = (link: string) => {
+  const handleLinkClick = (target: string) => {
     setIsMenuOpen(false);
-    if (link === 'Inquire' && onOpenPortal) {
-      onOpenPortal('patron');
+    if (target === 'inquire' && onOpenInquire) {
+      onOpenInquire();
+      return;
+    }
+    const el = document.getElementById(target);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 px-5 md:px-12 py-4 md:py-5 flex items-center justify-between">
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 px-5 md:px-12 py-4 md:py-5 flex items-center justify-between transition-all duration-300 ${
+          scrolled ? 'bg-black/80 backdrop-blur-md border-b border-white/10' : 'bg-transparent'
+        }`}
+      >
         {/* Left - Logo SVG */}
-        <a href="#" className="relative z-50 cursor-pointer" aria-label="Horizon Estates Home">
-          <Logo className="w-7 h-7 md:w-10 md:h-10 text-white relative z-50" />
-        </a>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="relative z-50 cursor-pointer flex items-center gap-3 group"
+          aria-label="Horizon Estates Home"
+        >
+          <Logo className="w-7 h-7 md:w-10 md:h-10 text-white relative z-50 transition-transform group-hover:scale-105" />
+          <span className="hidden sm:inline-block font-heading text-lg tracking-widest text-white uppercase">
+            Horizon
+          </span>
+        </button>
 
         {/* Center - Nav Links (hidden mobile, visible md+) */}
         <div className="hidden md:flex items-center gap-8 text-white/90 text-sm font-geist font-light tracking-wide">
-          {navLinks.map((link) => (
+          {navLinks.map((item) => (
             <button
-              key={link}
-              onClick={() => handleLinkClick(link)}
-              className="hover:text-white transition-colors cursor-pointer"
+              key={item.label}
+              onClick={() => handleLinkClick(item.target)}
+              className="hover:text-white transition-colors cursor-pointer py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white hover:after:w-full after:transition-all after:duration-300"
             >
-              {link}
+              {item.label}
             </button>
           ))}
         </div>
 
-        {/* Right - CTA Button (hidden mobile, visible md+) */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Right - CTA Button & DBMS quick links (hidden mobile, visible md+) */}
+        <div className="hidden md:flex items-center gap-5">
+          {/* Quick Portal buttons */}
+          {onOpenPortal && (
+            <div className="flex items-center gap-3 text-[10px] font-mono tracking-widest text-white/60 uppercase">
+              <button
+                onClick={() => onOpenPortal('patron')}
+                className="hover:text-white flex items-center gap-1 transition-opacity opacity-75 hover:opacity-100 cursor-pointer"
+                title="Open Patron Customer Portal"
+              >
+                <User className="w-3 h-3" />
+                <span>Patron</span>
+              </button>
+
+              <button
+                onClick={() => onOpenPortal('agent')}
+                className="hover:text-white flex items-center gap-1 transition-opacity opacity-75 hover:opacity-100 cursor-pointer"
+                title="Open Atelier Broker Desk"
+              >
+                <Briefcase className="w-3 h-3" />
+                <span>Atelier</span>
+              </button>
+
+              <button
+                onClick={() => onOpenPortal('sql')}
+                className="hover:text-emerald-400 flex items-center gap-1 px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-300 hover:bg-emerald-950/30 transition-all cursor-pointer"
+                title="Open Interactive SQL Query Console"
+              >
+                <Terminal className="w-3 h-3 text-emerald-400" />
+                <span>SQL</span>
+              </button>
+            </div>
+          )}
+
+          {/* Primary CTA button */}
           <button
-            onClick={() => onOpenPortal ? onOpenPortal('patron') : null}
-            className="hidden md:flex group items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full pl-5 pr-1.5 py-1.5 hover:bg-white transition-all shadow-lg cursor-pointer"
+            onClick={onOpenInquire}
+            className="group flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full pl-5 pr-1.5 py-1.5 hover:bg-white transition-all shadow-lg cursor-pointer"
           >
             <span className="text-gray-800 text-xs md:text-sm font-geist font-medium tracking-wider uppercase">
               Inquire
@@ -95,16 +161,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenPortal }) => {
 
         <div className="relative h-full flex flex-col items-center justify-center px-8">
           <div className="flex flex-col items-center gap-6">
-            {navLinks.map((link, i) => (
+            {navLinks.map((item, i) => (
               <button
-                key={link}
-                onClick={() => handleLinkClick(link)}
+                key={item.label}
+                onClick={() => handleLinkClick(item.target)}
                 className={`text-white text-2xl font-heading tracking-wider uppercase hover:text-white/70 transition-all duration-500 cursor-pointer ${
                   isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
                 }`}
                 style={{ transitionDelay: `${100 + i * 60}ms` }}
               >
-                {link}
+                {item.label}
               </button>
             ))}
           </div>
@@ -112,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenPortal }) => {
           <button
             onClick={() => {
               setIsMenuOpen(false);
-              if (onOpenPortal) onOpenPortal('patron');
+              if (onOpenInquire) onOpenInquire();
             }}
             className={`mt-10 group flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full pl-5 pr-1.5 py-1.5 hover:bg-white transition-all duration-500 shadow-lg cursor-pointer ${
               isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
