@@ -209,7 +209,7 @@ export const App: React.FC = () => {
     const wrapper = houseWrapperRef.current;
 
     if (progress <= 0) {
-      // Reset to resting (bottom-centered, scale 1)
+      // Reset to resting (bottom-centered, scale 1, full opacity)
       wrapper.style.top = '';
       wrapper.style.bottom = '0px';
       wrapper.style.left = '50%';
@@ -217,6 +217,7 @@ export const App: React.FC = () => {
       wrapper.style.transformOrigin = '';
       wrapper.style.width = '100%';
       wrapper.style.minWidth = '1400px';
+      wrapper.style.opacity = '1';
       return;
     }
 
@@ -224,8 +225,8 @@ export const App: React.FC = () => {
     const smoothstep = (x: number) => x * x * (3 - 2 * x);
     const t = smoothstep(smoothstep(progress));
 
-    const imgNaturalW = houseImgRef.current.naturalWidth || 1554;
-    const imgNaturalH = houseImgRef.current.naturalHeight || 859;
+    const imgNaturalW = houseImgRef.current.naturalWidth || 1376;
+    const imgNaturalH = houseImgRef.current.naturalHeight || 768;
     const aspect = imgNaturalW / imgNaturalH;
     const imgH = baseW / aspect;
 
@@ -241,6 +242,15 @@ export const App: React.FC = () => {
     const currentY = startY + (finalY - startY) * t;
     const currentScale = 1 + (finalScale - 1) * t;
 
+    // Smooth opacity fade: stays fully visible in hero, fades smoothly as it moves into the dark statement
+    // so it never covers the text and stats
+    const fadeStart = 0.12;
+    const fadeEnd = 0.55;
+    let opacity = 1;
+    if (progress > fadeStart) {
+      opacity = Math.max(0, 1 - (progress - fadeStart) / (fadeEnd - fadeStart));
+    }
+
     wrapper.style.bottom = 'auto';
     wrapper.style.top = '0px';
     wrapper.style.left = '0px';
@@ -248,6 +258,7 @@ export const App: React.FC = () => {
     wrapper.style.minWidth = '1400px';
     wrapper.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
     wrapper.style.transformOrigin = 'top left';
+    wrapper.style.opacity = `${opacity}`;
   }, [liftDone]);
 
   useEffect(() => {
@@ -774,7 +785,7 @@ export const App: React.FC = () => {
           style={{ backgroundColor: '#1a1a1a' }}
         >
           <div
-            className="s2-content flex flex-col px-6 md:px-10 lg:px-16"
+            className="s2-content relative z-30 flex flex-col px-6 md:px-10 lg:px-16 pointer-events-auto"
             style={{
               paddingTop: 'clamp(30px, 4vw, 60px)',
               paddingBottom: 'clamp(60px, 8vw, 120px)',
