@@ -7,11 +7,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        heading: ['"Magical Source Demo"', 'serif'],
+        heading: ['Cinzel', 'serif'],
+        cinematic: ['Cinzel', 'serif'],
+        cormorant: ['"Cormorant Garamond"', 'serif'],
         geist: ['Geist', 'sans-serif'],
-        display: ['Anton', 'sans-serif'],
-        sans: ['Geist', 'Inter', 'sans-serif'],
-        editorial: ['Syne', 'sans-serif'],
+        sans: ['Geist', 'sans-serif'],
       },
       transitionTimingFunction: {
         'cinematic': 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -22,6 +22,7 @@ export default {
       letterSpacing: {
         'widest-editorial': '0.35em',
         'super-wide': '0.45em',
+        'cinematic': '0.22em',
       },
     },
   },

@@ -13,10 +13,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  background-color: #000000;
+  color: #ffffff;
 }
 
 .font-heading {
-  font-family: 'Magical Source Demo', serif;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.12em;
+}
+
+.font-cinematic {
+  font-family: 'Cinzel', serif;
+}
+
+.font-cormorant {
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .font-geist {

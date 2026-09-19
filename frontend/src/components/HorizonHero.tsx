@@ -110,53 +110,61 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquire }) => {
         <div className="absolute bottom-0 left-0 right-0 pb-10 sm:pb-12 md:pb-16 px-5 sm:px-6 md:px-12 text-center z-20">
           {/* Top Pill / Listing Identifier */}
           <div
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-3 sm:mb-4 transition-all duration-[1000ms] ease-out ${
+            className={`inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 mb-3 sm:mb-4 transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
             style={{ transitionDelay: '450ms' }}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-widest text-white/90">
+            <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.22em] text-white/90">
               FEATURED ESTATE // MALIBU BLUFFS • FREEHOLD DEED
             </span>
           </div>
 
-          {/* Listing Title & Price (H1) */}
+          {/* Cinematic Estate Title */}
           <h1
-            className={`font-heading text-white text-2xl sm:text-3xl md:text-5xl lg:text-6xl leading-[1.1] tracking-wide uppercase transition-all duration-[1000ms] ease-out ${
+            className={`font-heading text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-normal tracking-[0.18em] uppercase leading-[1.1] transition-all duration-[1000ms] ease-out drop-shadow-lg ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
             style={{ transitionDelay: '600ms' }}
           >
             The Horizon Villa
-            <br />
-            <span className="text-white/90 font-light">$18,500,000 USD</span>
           </h1>
 
-          {/* Property Specifications Line */}
+          {/* Clean Price Line (Cormorant Garamond / Sans) */}
           <div
-            className={`mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[11px] sm:text-xs md:text-sm font-geist font-medium text-white/90 uppercase tracking-widest transition-all duration-[1000ms] ease-out ${
+            className={`mt-2 text-white/90 text-sm sm:text-base md:text-lg font-mono tracking-[0.25em] uppercase font-light transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
-            style={{ transitionDelay: '750ms' }}
+            style={{ transitionDelay: '700ms' }}
           >
-            <span>6 Beds</span>
-            <span className="opacity-40">•</span>
-            <span>8 Baths</span>
-            <span className="opacity-40">•</span>
-            <span>9,400 Sq.Ft</span>
-            <span className="opacity-40">•</span>
+            $18,500,000 USD
+          </div>
+
+          {/* Uncluttered Clean Specs Line */}
+          <div
+            className={`mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2.5 sm:gap-5 text-[11px] sm:text-xs md:text-sm font-geist font-light text-white/90 uppercase tracking-[0.2em] transition-all duration-[1000ms] ease-out ${
+              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+            style={{ transitionDelay: '800ms' }}
+          >
+            <span><strong className="font-medium text-white">6</strong> Beds</span>
+            <span className="opacity-30">|</span>
+            <span><strong className="font-medium text-white">8</strong> Baths</span>
+            <span className="opacity-30">|</span>
+            <span><strong className="font-medium text-white">9,400</strong> Sq.Ft</span>
+            <span className="opacity-30">|</span>
             <span>Private Beach</span>
-            <span className="opacity-40">•</span>
+            <span className="opacity-30">|</span>
             <span>Infinity Pool</span>
           </div>
 
           {/* Architectural Description */}
           <p
-            className={`mt-3 sm:mt-4 md:mt-5 text-white/80 font-geist font-light text-xs sm:text-sm md:text-base max-w-xs sm:max-w-xl mx-auto leading-relaxed transition-all duration-[1000ms] ease-out ${
+            className={`mt-3 sm:mt-4 text-white/75 font-geist font-light text-xs sm:text-sm md:text-base max-w-xs sm:max-w-xl mx-auto leading-relaxed tracking-wide transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
-            style={{ transitionDelay: '850ms' }}
+            style={{ transitionDelay: '900ms' }}
           >
             An iconic contemporary coastal compound sculptured into the coastline, featuring 270° panoramic Pacific ocean views, cantilevered glass pavilions, and verified sovereign freehold title.
           </p>
@@ -166,7 +174,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquire }) => {
             className={`mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-3 transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
-            style={{ transitionDelay: '950ms' }}
+            style={{ transitionDelay: '1000ms' }}
           >
             <button
               onClick={onOpenInquire}
