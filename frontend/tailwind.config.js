@@ -7,8 +7,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        heading: ['"Magical Source Demo"', 'serif'],
+        geist: ['Geist', 'sans-serif'],
         display: ['Anton', 'sans-serif'],
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Geist', 'Inter', 'sans-serif'],
         editorial: ['Syne', 'sans-serif'],
       },
       transitionTimingFunction: {
@@ -21,18 +23,6 @@ export default {
         'widest-editorial': '0.35em',
         'super-wide': '0.45em',
       },
-      colors: {
-        stone: {
-          limestone: '#D8D2C6',
-          sand: '#E3DDD3',
-          concrete: '#C7CCD1',
-          slate: '#363E48',
-          charcoal: '#1A1C1E',
-          terracotta: '#C87D65',
-          olive: '#5A6255',
-          ivory: '#F4F1EA',
-        }
-      }
     },
   },
   plugins: [],

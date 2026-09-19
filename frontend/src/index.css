@@ -2,60 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Custom architectural minimalist scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
+body {
+  font-family: 'Geist', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.font-heading {
+  font-family: 'Magical Source Demo', serif;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.perspective-stage {
-  perspective: 1400px;
-  perspective-origin: 50% 50%;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-/* Subtle architectural pedestal shadow */
-.pedestal-shadow {
-  box-shadow: 0 45px 70px -15px rgba(0, 0, 0, 0.4), 0 25px 35px -10px rgba(0, 0, 0, 0.25);
-}
-
-/* Hairline borders */
-.border-hairline {
-  border-width: 0.75px;
+.font-geist {
+  font-family: 'Geist', sans-serif;
 }
