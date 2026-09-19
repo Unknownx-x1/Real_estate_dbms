@@ -5,20 +5,22 @@ import {
   Terminal, 
   User, 
   Briefcase, 
-  ShieldCheck
+  ShieldCheck,
+  ChevronDown
 } from 'lucide-react';
 import { NoiseOverlay } from './components/NoiseOverlay';
 import { PatronDashboard } from './components/dashboards/PatronDashboard';
 import { AgentDashboard } from './components/dashboards/AgentDashboard';
 import { SqlQueryWindow } from './components/SqlQueryWindow';
 import type { UserSession } from './services/api';
+import buildingImg from './assets/building.png';
 
 // ============================================================================
 // CONSTANTS (EXACT SPECIFICATIONS)
 // ============================================================================
 const GRASS_GREEN = '#213138'; // deep teal / preloader background & default logo color
 const FULL_TEXT = 'Velar.';
-const HOUSE_IMG = 'https://res.cloudinary.com/dsdhxhhqh/image/upload/v1780471903/building_bzziky.png';
+const HOUSE_IMG = buildingImg;
 const BG_IMG = 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260603_073200_7082add5-f1f8-4873-8696-d6f78a44089b.png&w=1920&q=85';
 
 const GALLERY_VIDEOS = [
@@ -222,8 +224,8 @@ export const App: React.FC = () => {
     const smoothstep = (x: number) => x * x * (3 - 2 * x);
     const t = smoothstep(smoothstep(progress));
 
-    const imgNaturalW = houseImgRef.current.naturalWidth || 1400;
-    const imgNaturalH = houseImgRef.current.naturalHeight || 900;
+    const imgNaturalW = houseImgRef.current.naturalWidth || 1554;
+    const imgNaturalH = houseImgRef.current.naturalHeight || 859;
     const aspect = imgNaturalW / imgNaturalH;
     const imgH = baseW / aspect;
 
@@ -307,6 +309,14 @@ export const App: React.FC = () => {
     setIsMenuOpen(false);
     setCurrentView('sql');
     window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const scrollToSection = (id: string) => {
+    setIsMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const navColor = navOnDark ? '#ffffff' : GRASS_GREEN;
@@ -496,24 +506,46 @@ export const App: React.FC = () => {
       {/* ===================================================================== */}
       {/* SECTION 2: FIXED NAVIGATION */}
       {/* ===================================================================== */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-10 lg:px-16 py-5 md:py-6 flex items-center justify-between pointer-events-auto">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-10 lg:px-16 py-5 md:py-6 flex items-center justify-between pointer-events-auto transition-colors duration-350">
         {/* Left: Brand Mark */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="text-xl tracking-tight transition-colors duration-350 cursor-pointer"
+          className="text-xl tracking-tight transition-colors duration-350 cursor-pointer group flex items-center"
           style={{ fontFamily: 'Syne, sans-serif', color: navColor }}
         >
           <span className="font-bold">Velar</span>
           <span className="font-black">.</span>
         </button>
 
+        {/* Center: Primary Navigation Links (Desktop) */}
+        <nav className="hidden lg:flex items-center space-x-8 xl:space-x-10 text-xs tracking-[0.22em] uppercase font-bold">
+          {[
+            { label: 'Residences', id: 'residences' },
+            { label: 'Story', id: 'story' },
+            { label: 'Listings', id: 'listings' },
+            { label: 'Inquire', id: 'inquire' },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={() => scrollToSection(item.id)}
+              className="relative py-1 transition-all duration-300 opacity-80 hover:opacity-100 hover:tracking-[0.28em] cursor-pointer"
+              style={{
+                fontFamily: 'Syne, sans-serif',
+                color: navColor,
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
         {/* Center/Right: Quick Portals & Hamburger */}
         <div className="flex items-center space-x-4 md:space-x-8">
           {/* Quick links to existing DBMS portals */}
-          <nav className="hidden md:flex items-center space-x-6 text-[10px] font-mono uppercase tracking-widest">
+          <nav className="hidden sm:flex items-center space-x-4 md:space-x-6 text-[10px] font-mono uppercase tracking-widest">
             <button
               onClick={openPatronPortal}
-              className="flex items-center space-x-1.5 transition-opacity hover:opacity-100 opacity-75"
+              className="flex items-center space-x-1.5 transition-opacity hover:opacity-100 opacity-75 cursor-pointer"
               style={{ color: navColor }}
               title="Open Patron / Customer Portal"
             >
@@ -523,7 +555,7 @@ export const App: React.FC = () => {
 
             <button
               onClick={openAgentPortal}
-              className="flex items-center space-x-1.5 transition-opacity hover:opacity-100 opacity-75"
+              className="flex items-center space-x-1.5 transition-opacity hover:opacity-100 opacity-75 cursor-pointer"
               style={{ color: navColor }}
               title="Open Atelier Broker Desk"
             >
@@ -533,7 +565,7 @@ export const App: React.FC = () => {
 
             <button
               onClick={openSqlConsole}
-              className="flex items-center space-x-1.5 px-2.5 py-1 rounded border transition-all hover:bg-black/10"
+              className="flex items-center space-x-1.5 px-2.5 py-1 rounded border transition-all hover:bg-black/10 cursor-pointer"
               style={{ 
                 borderColor: navOnDark ? 'rgba(255,255,255,0.2)' : 'rgba(33,49,56,0.2)',
                 color: navColor 
@@ -577,14 +609,13 @@ export const App: React.FC = () => {
         >
           <nav className="flex flex-col items-center space-y-7 text-center">
             {['Residences', 'Story', 'Listings', 'Inquire'].map((link) => (
-              <a
+              <button
                 key={link}
-                href={`#${link.toLowerCase()}`}
-                onClick={() => setIsMenuOpen(false)}
-                className="text-4xl md:text-5xl font-light tracking-widest uppercase text-black hover:text-gray-500 transition-colors"
+                onClick={() => scrollToSection(link.toLowerCase())}
+                className="text-4xl md:text-5xl font-light tracking-widest uppercase text-black hover:text-gray-500 transition-colors cursor-pointer"
               >
                 {link}
-              </a>
+              </button>
             ))}
 
             <div className="w-16 h-[1px] bg-black/20 my-4" />
@@ -592,7 +623,7 @@ export const App: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center gap-4 font-mono text-xs tracking-widest">
               <button
                 onClick={openPatronPortal}
-                className="px-4 py-2 border border-black/30 hover:border-black uppercase flex items-center space-x-2"
+                className="px-4 py-2 border border-black/30 hover:border-black uppercase flex items-center space-x-2 cursor-pointer"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Patron Portal</span>
@@ -600,7 +631,7 @@ export const App: React.FC = () => {
 
               <button
                 onClick={openAgentPortal}
-                className="px-4 py-2 border border-black/30 hover:border-black uppercase flex items-center space-x-2"
+                className="px-4 py-2 border border-black/30 hover:border-black uppercase flex items-center space-x-2 cursor-pointer"
               >
                 <Briefcase className="w-3.5 h-3.5" />
                 <span>Atelier Desk</span>
@@ -608,7 +639,7 @@ export const App: React.FC = () => {
 
               <button
                 onClick={openSqlConsole}
-                className="px-4 py-2 bg-[#213138] text-white uppercase flex items-center space-x-2"
+                className="px-4 py-2 bg-[#213138] text-white uppercase flex items-center space-x-2 cursor-pointer"
               >
                 <Terminal className="w-3.5 h-3.5 text-emerald-400" />
                 <span>SQL Console</span>
@@ -623,8 +654,9 @@ export const App: React.FC = () => {
       {/* ===================================================================== */}
       <div
         ref={houseWrapperRef}
-        className="fixed z-22 pointer-events-none will-change-transform"
+        className="fixed pointer-events-none will-change-transform"
         style={{
+          zIndex: 22,
           bottom: 0,
           left: '50%',
           transform: 'translateX(-50%)',
@@ -644,7 +676,8 @@ export const App: React.FC = () => {
           <img
             ref={houseImgRef}
             src={HOUSE_IMG}
-            alt=""
+            alt="Velar Luxury Estate"
+            onLoad={updatePositions}
             className="w-full block select-none pointer-events-none"
             aria-hidden="true"
           />
@@ -712,13 +745,25 @@ export const App: React.FC = () => {
             Premium real estate with vision,<br />
             depth, and architectural clarity.
           </p>
+
+          {/* Elegant Scroll Indicator */}
+          <div className="px-6 md:px-10 lg:px-16 mt-6 md:mt-10">
+            <button
+              onClick={() => scrollToSection('story')}
+              className="inline-flex items-center space-x-2.5 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors cursor-pointer"
+            >
+              <span className="w-8 h-[1px] bg-black/30" />
+              <span>Scroll to explore portfolio</span>
+              <ChevronDown className="w-3.5 h-3.5 animate-bounce text-black/60" />
+            </button>
+          </div>
         </div>
       </section>
 
       {/* ===================================================================== */}
       {/* SECTION 5: DARK STATEMENT + STATS (STICKY 200VH) */}
       {/* ===================================================================== */}
-      <div className="relative z-20" style={{ height: '200vh' }}>
+      <div className="relative" style={{ zIndex: 20, height: '200vh' }}>
         {/* 4vh scroll spacer */}
         <div className="w-full" style={{ height: '4vh', backgroundColor: '#1a1a1a' }} />
 
@@ -855,8 +900,9 @@ export const App: React.FC = () => {
       <section
         ref={galleryRef}
         id="listings"
-        className="s3-gallery-section relative z-25 overflow-hidden"
+        className="s3-gallery-section relative overflow-hidden"
         style={{
+          zIndex: 25,
           marginTop: '-100vh',
           backgroundColor: '#1a1a1a',
           height: '100vh',
