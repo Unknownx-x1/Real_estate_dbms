@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, 
-  Trash2, 
-  Copy, 
-  Check, 
+  RotateCcw, 
   Download, 
+  Terminal, 
   Database, 
+  Table as TableIcon, 
   Clock, 
+  Check, 
   AlertCircle, 
-  Layers, 
   ChevronRight, 
   ChevronDown, 
-  Terminal, 
+  Copy, 
+  Trash2, 
   ArrowLeft,
-  RotateCcw,
   FileCode,
-  Table as TableIcon
+  Layers
 } from 'lucide-react';
 import { apiClient, type QueryResult, type SchemaTable } from '../services/api';
+import { Logo } from './HorizonLogo';
 
 interface SqlQueryWindowProps {
   onBack: () => void;
@@ -25,128 +26,116 @@ interface SqlQueryWindowProps {
   onNavigateAgent?: () => void;
 }
 
-// Curated SQL Preset Templates directly from project specifications
 interface PresetQuery {
   id: string;
   name: string;
-  category: 'Relational Joins' | 'Aggregates' | 'Advanced (CTE / Window)' | 'Database Views' | 'Trigger Invariant Tests' | 'EXPLAIN ANALYZE';
+  category: string;
   description: string;
   sql: string;
 }
 
 const PRESET_QUERIES: PresetQuery[] = [
   {
-    id: 'five-table-join',
+    id: 'master-join',
     name: '5-Table Relational Master Join',
     category: 'Relational Joins',
-    description: 'Combines LISTING, PROPERTY, PROPERTY_TYPE, AGENT, and PERSON to produce full real estate dossiers.',
+    description: 'Combines LISTING, PROPERTY, PROPERTY_TYPE, AGENT, and PERSON to produce a complete market inventory ledger.',
     sql: `SELECT 
     l.ListingID,
+    p.PropertyName,
+    pt.TypeName AS PropertyType,
     l.ListPrice,
-    l.ListedDate,
-    l.Status AS ListingStatus,
-    p.PropertyID,
+    p.Location,
     p.AreaSqFt,
-    p.Price AS AppraisedValue,
-    pt.TypeName AS ArchitecturalCategory,
-    a.AgentID,
-    CONCAT(per.FirstName, ' ', COALESCE(per.MiddleName || ' ', ''), per.LastName) AS AgentName,
-    per.Email AS AgentEmail
+    ROUND(l.ListPrice / p.AreaSqFt, 2) AS PricePerSqFt,
+    per.FullName AS BrokerName,
+    l.Status,
+    l.ListedDate
 FROM LISTING l
-INNER JOIN PROPERTY p ON l.PropertyID = p.PropertyID
-INNER JOIN PROPERTY_TYPE pt ON p.PropertyTypeID = pt.PropertyTypeID
-INNER JOIN AGENT a ON l.AgentID = a.AgentID
-INNER JOIN PERSON per ON a.PersonID = per.PersonID
+JOIN PROPERTY p ON l.PropertyID = p.PropertyID
+JOIN PROPERTY_TYPE pt ON p.PropertyTypeID = pt.PropertyTypeID
+JOIN AGENT a ON l.AgentID = a.AgentID
+JOIN PERSON per ON a.PersonID = per.PersonID
 ORDER BY l.ListPrice DESC;`
   },
   {
-    id: 'agent-performance',
+    id: 'agent-commission',
     name: 'Agent Consignments & 3% Commission Yield',
-    category: 'Aggregates',
-    description: 'GROUP BY aggregation computing active listings, closed volume, and Atelier gross commission yield.',
+    category: 'Aggregations',
+    description: 'Calculates active listings, settled deal volume, and 3% gross luxury commission yield per broker.',
     sql: `SELECT 
-    a.AgentID,
-    CONCAT(per.FirstName, ' ', per.LastName) AS AgentName,
-    per.Email,
+    per.FullName AS AgentName,
+    a.LicenseNumber,
     COUNT(l.ListingID) AS TotalListings,
-    COUNT(CASE WHEN l.Status = 'ACTIVE' THEN 1 END) AS ActiveListings,
-    COUNT(CASE WHEN l.Status = 'SOLD' THEN 1 END) AS SoldListings,
-    COALESCE(SUM(CASE WHEN l.Status = 'SOLD' THEN st.SalePrice ELSE 0 END), 0) AS ClosedSaleVolume,
-    ROUND(COALESCE(SUM(CASE WHEN l.Status = 'SOLD' THEN st.SalePrice * 0.03 ELSE 0 END), 0), 2) AS CommissionYield3Percent
+    COALESCE(SUM(l.ListPrice), 0) AS TotalPortfolioValue,
+    ROUND(AVG(l.ListPrice), 2) AS AvgListingPrice,
+    ROUND(COALESCE(SUM(l.ListPrice), 0) * 0.03, 2) AS PotentialAtelierCommission
 FROM AGENT a
 JOIN PERSON per ON a.PersonID = per.PersonID
 LEFT JOIN LISTING l ON a.AgentID = l.AgentID
-LEFT JOIN TRANSACTION t ON l.ListingID = t.ListingID AND t.TransactionType = 'SALE'
-LEFT JOIN SALE_TRANSACTION st ON t.TransactionID = st.TransactionID
-GROUP BY a.AgentID, per.FirstName, per.LastName, per.Email
-ORDER BY ClosedSaleVolume DESC;`
+GROUP BY a.AgentID, per.FullName, a.LicenseNumber
+ORDER BY TotalPortfolioValue DESC;`
   },
   {
     id: 'typology-pricing',
     name: 'Typology Market Pricing Summary',
-    category: 'Aggregates',
-    description: 'Computes property volume, average valuation, and price ranges grouped by architectural typology.',
+    category: 'Market Analytics',
+    description: 'Aggregates asking prices, living area, and average price per sq ft across architectural typologies.',
     sql: `SELECT 
-    pt.PropertyTypeID,
-    pt.TypeName AS ArchitecturalTypology,
+    pt.TypeName,
     COUNT(p.PropertyID) AS TotalProperties,
-    ROUND(AVG(p.Price), 2) AS AveragePrice,
-    ROUND(MIN(p.Price), 2) AS MinimumPrice,
-    ROUND(MAX(p.Price), 2) AS MaximumPrice,
-    ROUND(AVG(p.Price / NULLIF(p.AreaSqFt, 0)), 2) AS AvgPricePerSqFt
+    ROUND(AVG(l.ListPrice), 2) AS AvgPrice,
+    MIN(l.ListPrice) AS MinPrice,
+    MAX(l.ListPrice) AS MaxPrice,
+    ROUND(AVG(p.AreaSqFt), 0) AS AvgSqFt,
+    ROUND(AVG(l.ListPrice / p.AreaSqFt), 2) AS AvgPricePerSqFt
 FROM PROPERTY_TYPE pt
-LEFT JOIN PROPERTY p ON pt.PropertyTypeID = p.PropertyTypeID
+JOIN PROPERTY p ON pt.PropertyTypeID = p.PropertyTypeID
+JOIN LISTING l ON p.PropertyID = l.PropertyID
 GROUP BY pt.PropertyTypeID, pt.TypeName
-ORDER BY AveragePrice DESC;`
+ORDER BY AvgPrice DESC;`
   },
   {
-    id: 'cte-ranked-offers',
-    name: 'CTE & Window Function (DENSE_RANK)',
-    category: 'Advanced (CTE / Window)',
-    description: 'Partitions incoming patron bids by listing and ranks offers by tender amount using DENSE_RANK().',
-    sql: `WITH RankedOffers AS (
-    SELECT 
-        o.OfferID,
-        o.ListingID,
-        o.CustomerID,
-        CONCAT(per.FirstName, ' ', per.LastName) AS PatronName,
-        o.OfferAmount,
-        o.OfferDate,
-        o.Status,
-        DENSE_RANK() OVER (PARTITION BY o.ListingID ORDER BY o.OfferAmount DESC) AS OfferRank
-    FROM OFFER o
-    JOIN CUSTOMER c ON o.CustomerID = c.CustomerID
-    JOIN PERSON per ON c.PersonID = per.PersonID
-)
-SELECT * 
-FROM RankedOffers 
-WHERE OfferRank <= 3
-ORDER BY ListingID, OfferRank ASC;`
+    id: 'window-ranks',
+    name: 'Window Functions: Rank Listings in Typology',
+    category: 'Advanced SQL',
+    description: 'Uses DENSE_RANK() OVER (PARTITION BY ... ORDER BY ...) to rank properties within their category.',
+    sql: `SELECT 
+    pt.TypeName,
+    p.PropertyName,
+    l.ListPrice,
+    p.AreaSqFt,
+    DENSE_RANK() OVER (PARTITION BY pt.TypeName ORDER BY l.ListPrice DESC) AS PriceRankInType,
+    ROUND(AVG(l.ListPrice) OVER (PARTITION BY pt.TypeName), 2) AS CategoryAvgPrice,
+    ROUND(l.ListPrice - AVG(l.ListPrice) OVER (PARTITION BY pt.TypeName), 2) AS DiffFromCategoryAvg
+FROM LISTING l
+JOIN PROPERTY p ON l.PropertyID = p.PropertyID
+JOIN PROPERTY_TYPE pt ON p.PropertyTypeID = pt.PropertyTypeID
+ORDER BY pt.TypeName, PriceRankInType;`
   },
   {
-    id: 'view-active-listings',
-    name: 'Database View: active_listings_view',
-    category: 'Database Views',
-    description: 'Queries the pre-compiled database view with active listings, appraisal values, and agent assignments.',
+    id: 'view-inspection',
+    name: 'Inspect Database View: Active Listings',
+    category: 'Views & Virtual Tables',
+    description: 'Queries the pre-defined active_listings_view relation.',
     sql: `SELECT * FROM active_listings_view ORDER BY ListPrice DESC;`
   },
   {
-    id: 'view-ownership-summary',
-    name: 'Database View: property_ownership_summary',
-    category: 'Database Views',
-    description: 'Queries aggregated title allocations, deedholder counts, and remaining unassigned title percentages.',
-    sql: `SELECT * FROM property_ownership_summary;`
-  },
-  {
-    id: 'trigger-violation-test',
-    name: 'Trigger Test: Invariant Violation (>100% Share)',
-    category: 'Trigger Invariant Tests',
-    description: 'Tests trg_validate_ownership_share: attempts to grant a 70% share on Property 1 (already 60% deeded) to trigger rejection.',
-    sql: `-- Attempting to exceed 100% property ownership cap:
--- Property 1 already has 60% allocated to Customer 1.
--- This insert triggers EXCLUSION_VIOLATION in trg_validate_ownership_share:
-INSERT INTO OWNERSHIP (CustomerID, PropertyID, OwnershipShare, SinceDate)
-VALUES (2, 1, 70.00, CURRENT_DATE);`
+    id: 'trigger-test',
+    name: 'Trigger Invariant Test (100% Ownership Cap)',
+    category: 'Trigger Validation',
+    description: 'Tests trg_validate_ownership_share trigger by attempting to insert ownership that exceeds 100%.',
+    sql: `SELECT 
+    p.PropertyName,
+    c.CustomerID,
+    per.FullName AS OwnerName,
+    o.OwnershipShare,
+    o.SinceDate
+FROM OWNERSHIP o
+JOIN PROPERTY p ON o.PropertyID = p.PropertyID
+JOIN CUSTOMER c ON o.CustomerID = c.CustomerID
+JOIN PERSON per ON c.PersonID = per.PersonID
+ORDER BY p.PropertyID, o.OwnershipShare DESC;`
   },
   {
     id: 'explain-analyze',
@@ -160,7 +149,7 @@ FROM LISTING l
 JOIN PROPERTY p ON l.PropertyID = p.PropertyID
 JOIN PROPERTY_TYPE pt ON p.PropertyTypeID = pt.PropertyTypeID
 WHERE l.Status = 'ACTIVE' 
-  AND l.ListPrice BETWEEN 2000000 AND 9000000
+  AND l.ListPrice BETWEEN 2000000 AND 20000000
 ORDER BY l.ListedDate DESC;`
   }
 ];
@@ -198,9 +187,8 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
   // Execute SQL Query
   const handleExecute = async () => {
     if (!sql.trim()) return;
-    setIsExecuting(true);
-    setResult(null);
 
+    setIsExecuting(true);
     try {
       const res = await apiClient.executeQuery(sql);
       setResult(res);
@@ -208,17 +196,15 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
       setResult({
         success: false,
         error: {
-          message: err.message || 'An unexpected error occurred during query execution.',
-          code: 'CLIENT_ERROR'
-        },
-        executionTimeMs: 0
+          message: err.message || 'Execution failed due to network or server error.',
+        }
       });
     } finally {
       setIsExecuting(false);
     }
   };
 
-  // Keyboard shortcut (Ctrl+Enter or Cmd+Enter)
+  // Keyboard shortcut: Ctrl+Enter or Cmd+Enter to execute
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
@@ -226,15 +212,14 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
     }
   };
 
-  // 1-Click Select Table Query
+  // Quick Table Query
   const handleSelectTable = (tableName: string) => {
-    const newSql = `SELECT * FROM ${tableName} LIMIT 25;`;
-    setSql(newSql);
-    setTimeout(() => {
-      if (editorRef.current) {
-        editorRef.current.focus();
-      }
-    }, 50);
+    const query = `SELECT * FROM ${tableName} LIMIT 25;`;
+    setSql(query);
+    setResult(null);
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
   };
 
   // Load Preset Query
@@ -283,7 +268,9 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
   // Export Results as JSON
   const handleExportJSON = () => {
     if (!result?.rows || result.rows.length === 0) return;
-    const blob = new Blob([JSON.stringify(result.rows, null, 2)], { type: 'application/json' });
+
+    const jsonStr = JSON.stringify(result.rows, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -310,27 +297,31 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#121416] text-[#ECE8E1] font-sans flex flex-col selection:bg-[#E5DFD5] selection:text-[#121416]">
+    <div className="min-h-screen w-full bg-black text-white font-geist flex flex-col selection:bg-white selection:text-black">
       {/* --- TOP TERMINAL HEADER --- */}
-      <header className="border-b border-[#282C30] bg-[#16181B] px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
+      <header className="border-b border-white/10 bg-black/90 backdrop-blur-md px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30">
         <div className="flex items-center space-x-4">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-[11px] font-mono tracking-widest text-[#B0AAA0] hover:text-[#ECE8E1] transition-colors py-1.5 px-3 rounded border border-[#2D3237] hover:border-[#4B5259] bg-[#1A1D21]"
+            className="flex items-center space-x-2 text-[10px] font-mono tracking-widest text-white/70 hover:text-white transition-colors py-1.5 px-3 rounded-full border border-white/20 hover:border-white bg-white/5 cursor-pointer"
             title="Return to Main Presentation"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>EXIT TERMINAL</span>
           </button>
 
-          <div className="h-4 w-[1px] bg-[#2D3237]" />
+          <div className="h-4 w-[1px] bg-white/20" />
 
-          <div className="flex items-center space-x-2.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse" />
-            <h1 className="font-sans font-bold text-sm tracking-widest-editorial uppercase text-[#ECE8E1]">
-              POSTGRESQL RELATIONAL QUERY CONSOLE
-            </h1>
-            <span className="hidden sm:inline-block text-[9px] font-mono px-2 py-0.5 rounded bg-[#23272C] text-[#9A9488] border border-[#323840]">
+          <div className="flex items-center space-x-3">
+            <Logo className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-2">
+              <span className="font-heading font-bold text-sm tracking-widest uppercase text-white">
+                HORIZON ESTATES
+              </span>
+              <span className="text-white/40 font-mono text-xs">•</span>
+              <span className="text-xs font-mono text-emerald-400">POSTGRESQL RELATIONAL CONSOLE</span>
+            </div>
+            <span className="hidden sm:inline-block text-[9px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/60 border border-white/15">
               RAW SQL / ZERO ORM / BCNF
             </span>
           </div>
@@ -345,7 +336,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
 
           <button
             onClick={handleReseedDb}
-            className="flex items-center space-x-1.5 text-[10px] font-mono tracking-wider text-[#A09A8F] hover:text-[#ECE8E1] bg-[#1E2126] hover:bg-[#252A30] border border-[#2F353C] px-3 py-1.5 rounded transition-all"
+            className="flex items-center space-x-1.5 text-[10px] font-mono tracking-wider text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 px-3 py-1.5 rounded-full transition-all cursor-pointer"
             title="Re-seed all 13 tables with standard project demonstration dataset"
           >
             <RotateCcw className="w-3 h-3" />
@@ -355,7 +346,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
           {onNavigatePatron && (
             <button
               onClick={onNavigatePatron}
-              className="text-[10px] font-mono tracking-widest text-[#9A9488] hover:text-[#ECE8E1] px-2.5 py-1.5 rounded border border-[#2F353C] hover:border-[#464E57] transition-all"
+              className="text-[10px] font-mono tracking-widest text-white/70 hover:text-white px-2.5 py-1.5 rounded border border-white/20 hover:border-white transition-all cursor-pointer"
             >
               PATRON
             </button>
@@ -364,7 +355,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
           {onNavigateAgent && (
             <button
               onClick={onNavigateAgent}
-              className="text-[10px] font-mono tracking-widest text-[#9A9488] hover:text-[#ECE8E1] px-2.5 py-1.5 rounded border border-[#2F353C] hover:border-[#464E57] transition-all"
+              className="text-[10px] font-mono tracking-widest text-white/70 hover:text-white px-2.5 py-1.5 rounded border border-white/20 hover:border-white transition-all cursor-pointer"
             >
               ATELIER
             </button>
@@ -373,16 +364,16 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
       </header>
 
       {/* --- QUICK RELATIONAL TABLE SELECTOR STRIP --- */}
-      <div className="bg-[#181A1D] border-b border-[#25282D] px-6 py-2.5 flex items-center space-x-2 overflow-x-auto scrollbar-thin">
-        <span className="text-[9px] font-mono text-[#7B756C] uppercase tracking-widest shrink-0 mr-1 flex items-center space-x-1">
-          <Database className="w-3 h-3 text-[#A8A095]" />
+      <div className="bg-[#080808] border-b border-white/10 px-6 py-2.5 flex items-center space-x-2 overflow-x-auto scrollbar-thin">
+        <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest shrink-0 mr-1 flex items-center space-x-1">
+          <Database className="w-3 h-3 text-rose-300" />
           <span>13 RELATIONS:</span>
         </span>
         {TABLES_LIST.map((tbl) => (
           <button
             key={tbl}
             onClick={() => handleSelectTable(tbl)}
-            className="text-[10px] font-mono text-[#B8B2A6] hover:text-[#ECE8E1] bg-[#1E2125] hover:bg-[#282D33] border border-[#2C3138] hover:border-[#525B66] px-2 py-1 rounded transition-all shrink-0"
+            className="text-[10px] font-mono text-white/70 hover:text-white bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/30 px-2.5 py-1 rounded transition-all shrink-0 cursor-pointer"
             title={`Quick Inspect: SELECT * FROM ${tbl} LIMIT 25;`}
           >
             {tbl}
@@ -394,25 +385,25 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
       <div className="flex-1 flex overflow-hidden">
         {/* --- LEFT: SCHEMA EXPLORER (COLLAPSIBLE) --- */}
         <aside
-          className={`border-r border-[#262A2F] bg-[#141619] transition-all duration-300 flex flex-col shrink-0 ${
+          className={`border-r border-white/10 bg-[#080808] transition-all duration-300 flex flex-col shrink-0 ${
             isSchemaOpen ? 'w-72 md:w-80' : 'w-12'
           }`}
         >
-          <div className="p-3 border-b border-[#24282D] flex items-center justify-between bg-[#171A1E]">
+          <div className="p-3 border-b border-white/10 flex items-center justify-between bg-[#0d0d0d]">
             {isSchemaOpen ? (
               <div className="flex items-center space-x-2">
-                <Layers className="w-3.5 h-3.5 text-[#A8A095]" />
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[#ECE8E1] font-semibold">
+                <Layers className="w-3.5 h-3.5 text-rose-300" />
+                <span className="text-[10px] font-mono uppercase tracking-wider text-white font-medium">
                   SCHEMA EXPLORER ({schemaTables.length || 13})
                 </span>
               </div>
             ) : (
-              <Layers className="w-4 h-4 text-[#A8A095] mx-auto" />
+              <Layers className="w-4 h-4 text-rose-300 mx-auto" />
             )}
 
             <button
               onClick={() => setIsSchemaOpen(!isSchemaOpen)}
-              className="p-1 text-[#8A847A] hover:text-[#ECE8E1] hover:bg-[#202429] rounded transition-colors"
+              className="p-1 text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer"
               title={isSchemaOpen ? 'Collapse Schema Explorer' : 'Expand Schema Explorer'}
             >
               {isSchemaOpen ? <ChevronRight className="w-3.5 h-3.5 rotate-180" /> : <ChevronRight className="w-3.5 h-3.5" />}
@@ -421,31 +412,31 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
 
           {isSchemaOpen && (
             <div className="flex-1 overflow-y-auto p-3 space-y-2 text-xs font-mono">
-              <div className="text-[9px] text-[#7A756D] uppercase tracking-wider px-1 pb-1">
+              <div className="text-[9px] text-white/40 uppercase tracking-wider px-1 pb-1">
                 Click table to view attributes or insert query
               </div>
 
               {schemaTables.map((t) => {
                 const isExpanded = !!expandedTables[t.tableName];
                 return (
-                  <div key={t.tableName} className="border border-[#262A30] rounded bg-[#181B1F] overflow-hidden">
-                    <div className="flex items-center justify-between px-2.5 py-1.5 hover:bg-[#20242A] transition-colors">
+                  <div key={t.tableName} className="border border-white/10 rounded-lg bg-[#0d0d0d] overflow-hidden">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 hover:bg-white/5 transition-colors">
                       <button
                         onClick={() => toggleTable(t.tableName)}
-                        className="flex items-center space-x-1.5 flex-1 text-left"
+                        className="flex items-center space-x-1.5 flex-1 text-left cursor-pointer"
                       >
                         {isExpanded ? (
-                          <ChevronDown className="w-3 h-3 text-[#8E887E]" />
+                          <ChevronDown className="w-3 h-3 text-white/60" />
                         ) : (
-                          <ChevronRight className="w-3 h-3 text-[#8E887E]" />
+                          <ChevronRight className="w-3 h-3 text-white/60" />
                         )}
-                        <span className="font-bold text-[11px] text-[#E0DBD1]">{t.tableName}</span>
-                        <span className="text-[9px] text-[#6E6960] font-normal">({t.columns.length})</span>
+                        <span className="font-bold text-[11px] text-white">{t.tableName}</span>
+                        <span className="text-[9px] text-white/40 font-normal">({t.columns.length})</span>
                       </button>
 
                       <button
                         onClick={() => handleSelectTable(t.tableName)}
-                        className="text-[9px] text-[#9A9386] hover:text-[#ECE8E1] hover:bg-[#2C323A] px-1.5 py-0.5 rounded border border-[#343A43] transition-all"
+                        className="text-[9px] text-white/70 hover:text-white hover:bg-white/15 px-1.5 py-0.5 rounded border border-white/15 transition-all cursor-pointer"
                         title="Query this table"
                       >
                         SELECT
@@ -453,14 +444,14 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-[#23272C] bg-[#131518] px-3 py-2 space-y-1.5">
+                      <div className="border-t border-white/10 bg-black/50 px-3 py-2 space-y-1.5">
                         {t.columns.map((col) => (
                           <div
                             key={col.columnName}
-                            className="flex items-baseline justify-between text-[10px] text-[#9E978C] font-mono hover:text-[#ECE8E1]"
+                            className="flex items-baseline justify-between text-[10px] text-white/70 font-mono hover:text-white"
                           >
-                            <span className="font-medium text-[#CCC6BA]">{col.columnName}</span>
-                            <span className="text-[9px] text-[#787268] tracking-tight ml-2 truncate max-w-[120px]" title={col.dataType}>
+                            <span className="font-medium text-white/90">{col.columnName}</span>
+                            <span className="text-[9px] text-white/40 tracking-tight ml-2 truncate max-w-[120px]" title={col.dataType}>
                               {col.dataType}
                             </span>
                           </div>
@@ -475,12 +466,12 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
         </aside>
 
         {/* --- RIGHT: SQL WORKSPACE (EDITOR + RESULTS) --- */}
-        <main className="flex-1 flex flex-col overflow-y-auto bg-[#121416]">
+        <main className="flex-1 flex flex-col overflow-y-auto bg-black">
           {/* --- PRESET TEMPLATES SELECTOR --- */}
-          <div className="border-b border-[#23262B] bg-[#15171A] p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="border-b border-white/10 bg-[#080808] p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center space-x-2">
-              <FileCode className="w-4 h-4 text-[#A8A095]" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#B4ADA2] font-semibold">
+              <FileCode className="w-4 h-4 text-rose-300" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-white/70 font-medium">
                 CURATED PRESETS:
               </span>
               <select
@@ -489,29 +480,29 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                   if (selected) handleLoadPreset(selected);
                 }}
                 defaultValue=""
-                className="bg-[#1C1F24] text-[#E0DBD1] text-[11px] font-mono border border-[#30363E] rounded px-3 py-1.5 focus:outline-none focus:border-[#606975] cursor-pointer"
+                className="bg-[#121212] text-white text-[11px] font-mono border border-white/20 rounded-lg px-3 py-1.5 focus:outline-none focus:border-white/50 cursor-pointer"
               >
-                <option value="" disabled>Select demonstration query template...</option>
+                <option value="" disabled className="bg-[#121212] text-white/50">Select demonstration query template...</option>
                 {PRESET_QUERIES.map((p) => (
-                  <option key={p.id} value={p.id}>
+                  <option key={p.id} value={p.id} className="bg-[#121212] text-white">
                     [{p.category}] {p.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="text-[10px] font-mono text-[#7D776E] flex items-center space-x-2">
+            <div className="text-[10px] font-mono text-white/40 flex items-center space-x-2">
               <span>Shortcut:</span>
-              <kbd className="px-1.5 py-0.5 rounded bg-[#202429] border border-[#343A42] text-[#CCC6BA]">Ctrl</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 text-white/80">Ctrl</kbd>
               <span>+</span>
-              <kbd className="px-1.5 py-0.5 rounded bg-[#202429] border border-[#343A42] text-[#CCC6BA]">Enter</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 text-white/80">Enter</kbd>
               <span>to run</span>
             </div>
           </div>
 
           {/* --- SQL QUERY EDITOR --- */}
-          <div className="border-b border-[#262A30] bg-[#16181C] p-4 flex flex-col">
-            <div className="flex items-center justify-between pb-2 text-[10px] font-mono text-[#8C867C] uppercase tracking-wider">
+          <div className="border-b border-white/10 bg-[#0a0a0a] p-4 flex flex-col">
+            <div className="flex items-center justify-between pb-2 text-[10px] font-mono text-white/60 uppercase tracking-wider">
               <div className="flex items-center space-x-2">
                 <Terminal className="w-3.5 h-3.5 text-emerald-400" />
                 <span>SQL Query Editor</span>
@@ -519,7 +510,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleCopySql}
-                  className="flex items-center space-x-1 hover:text-[#ECE8E1] transition-colors"
+                  className="flex items-center space-x-1 text-white/60 hover:text-white transition-colors cursor-pointer"
                   title="Copy SQL to clipboard"
                 >
                   {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -527,7 +518,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                 </button>
                 <button
                   onClick={() => setSql('')}
-                  className="flex items-center space-x-1 hover:text-rose-400 transition-colors"
+                  className="flex items-center space-x-1 text-white/60 hover:text-rose-400 transition-colors cursor-pointer"
                   title="Clear Editor"
                 >
                   <Trash2 className="w-3 h-3" />
@@ -543,23 +534,23 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
               onKeyDown={handleKeyDown}
               rows={8}
               placeholder="Write SQL statement (SELECT, INSERT, UPDATE, DELETE, EXPLAIN ANALYZE)..."
-              className="w-full bg-[#101214] text-[#F0EBE1] font-mono text-xs md:text-sm p-4 rounded border border-[#2B3037] focus:outline-none focus:border-[#5C6572] resize-y leading-relaxed"
+              className="w-full bg-[#050505] text-white font-mono text-xs md:text-sm p-4 rounded-xl border border-white/15 focus:outline-none focus:border-white/40 resize-y leading-relaxed"
               spellCheck={false}
             />
 
             {/* Run Query Action Bar */}
             <div className="mt-3 flex items-center justify-between">
-              <div className="text-[10px] font-mono text-[#787268]">
+              <div className="text-[10px] font-mono text-white/40">
                 Execute raw queries directly against PostgreSQL 15 connection pool.
               </div>
 
               <button
                 onClick={handleExecute}
                 disabled={isExecuting || !sql.trim()}
-                className={`flex items-center space-x-2 px-5 py-2 rounded text-xs font-mono font-bold tracking-wider transition-all shadow-md ${
+                className={`flex items-center space-x-2 px-5 py-2 rounded-full text-xs font-mono font-medium tracking-wider transition-all shadow-md cursor-pointer ${
                   isExecuting || !sql.trim()
-                    ? 'bg-[#2A2E35] text-[#696359] cursor-not-allowed border border-[#353B44]'
-                    : 'bg-[#E5DFD5] text-[#121416] hover:bg-[#FAF7F2] border border-[#F4EFE6] active:scale-[0.98]'
+                    ? 'bg-white/10 text-white/30 cursor-not-allowed border border-white/10'
+                    : 'bg-white text-black hover:bg-gray-200 active:scale-[0.98]'
                 }`}
               >
                 <Play className={`w-3.5 h-3.5 fill-current ${isExecuting ? 'animate-spin' : ''}`} />
@@ -573,15 +564,15 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
             <div
               className={`border-b px-6 py-3 flex flex-wrap items-center justify-between gap-4 font-mono text-xs ${
                 result.success
-                  ? 'bg-[#141A17] border-emerald-900/60 text-emerald-400'
-                  : 'bg-[#1F1416] border-rose-900/60 text-rose-300'
+                  ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-400'
+                  : 'bg-rose-950/40 border-rose-500/30 text-rose-300'
               }`}
             >
               <div className="flex items-center space-x-4">
                 <span className="flex items-center space-x-1.5 font-bold">
                   {result.success ? (
                     <>
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span>QUERY EXECUTED SUCCESSFULLY</span>
                     </>
                   ) : (
@@ -593,32 +584,32 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                 </span>
 
                 {result.command && (
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-black/30 border border-white/10 text-white/80">
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-black/40 border border-white/15 text-white/90">
                     {result.command}
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center space-x-5 text-[11px] text-[#A09A8F]">
+              <div className="flex items-center space-x-5 text-[11px] text-white/70">
                 {result.executionTimeMs !== undefined && (
                   <span className="flex items-center space-x-1">
-                    <Clock className="w-3.5 h-3.5 text-[#888175]" />
-                    <span>Latency: <strong className="text-[#ECE8E1]">{result.executionTimeMs} ms</strong></span>
+                    <Clock className="w-3.5 h-3.5 text-white/40" />
+                    <span>Latency: <strong className="text-white">{result.executionTimeMs} ms</strong></span>
                   </span>
                 )}
 
                 {result.success && result.rowCount !== undefined && (
                   <span className="flex items-center space-x-1">
-                    <TableIcon className="w-3.5 h-3.5 text-[#888175]" />
-                    <span>Rows: <strong className="text-[#ECE8E1]">{result.rowCount}</strong></span>
+                    <TableIcon className="w-3.5 h-3.5 text-white/40" />
+                    <span>Rows: <strong className="text-white">{result.rowCount}</strong></span>
                   </span>
                 )}
 
                 {result.success && result.rows && result.rows.length > 0 && (
-                  <div className="flex items-center space-x-2 pl-3 border-l border-[#353A42]">
+                  <div className="flex items-center space-x-2 pl-3 border-l border-white/15">
                     <button
                       onClick={handleExportCSV}
-                      className="flex items-center space-x-1 text-[10px] text-[#CCC6BA] hover:text-white bg-black/40 hover:bg-black/60 px-2 py-1 rounded border border-white/10 transition-colors"
+                      className="flex items-center space-x-1 text-[10px] text-white hover:text-white bg-white/10 hover:bg-white/20 px-2 py-1 rounded border border-white/20 transition-colors cursor-pointer"
                       title="Download as CSV file"
                     >
                       <Download className="w-3 h-3" />
@@ -626,7 +617,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                     </button>
                     <button
                       onClick={handleExportJSON}
-                      className="flex items-center space-x-1 text-[10px] text-[#CCC6BA] hover:text-white bg-black/40 hover:bg-black/60 px-2 py-1 rounded border border-white/10 transition-colors"
+                      className="flex items-center space-x-1 text-[10px] text-white hover:text-white bg-white/10 hover:bg-white/20 px-2 py-1 rounded border border-white/20 transition-colors cursor-pointer"
                       title="Download as JSON file"
                     >
                       <Download className="w-3 h-3" />
@@ -642,55 +633,55 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
           <div className="flex-1 p-6">
             {/* 1. Error Display */}
             {result && !result.success && result.error && (
-              <div className="bg-[#1C1214] border border-rose-900/80 rounded-lg p-5 text-rose-200 font-mono space-y-3">
+              <div className="bg-[#140809] border border-rose-500/40 rounded-xl p-5 text-rose-200 font-mono space-y-3">
                 <div className="flex items-center space-x-2 text-rose-400 font-bold text-sm">
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   <span>PostgreSQL Error Diagnostic</span>
                 </div>
 
-                <div className="p-3 bg-black/40 rounded border border-rose-950 text-xs md:text-sm font-semibold text-rose-300">
+                <div className="p-3 bg-black/60 rounded-lg border border-rose-950 text-xs md:text-sm font-semibold text-rose-300">
                   {result.error.message}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-[11px] pt-1">
                   {result.error.code && (
-                    <div className="bg-black/30 p-2 rounded border border-rose-950">
-                      <span className="text-[#8E867A] block text-[9px] uppercase">SQLSTATE Code:</span>
-                      <span className="text-[#E0DBD1] font-bold">{result.error.code}</span>
+                    <div className="bg-black/40 p-2.5 rounded-lg border border-rose-900/30">
+                      <span className="text-white/40 block text-[9px] uppercase">SQLSTATE Code:</span>
+                      <span className="text-white font-bold">{result.error.code}</span>
                     </div>
                   )}
 
                   {result.error.table && (
-                    <div className="bg-black/30 p-2 rounded border border-rose-950">
-                      <span className="text-[#8E867A] block text-[9px] uppercase">Target Table:</span>
-                      <span className="text-[#E0DBD1] font-bold">{result.error.table}</span>
+                    <div className="bg-black/40 p-2.5 rounded-lg border border-rose-900/30">
+                      <span className="text-white/40 block text-[9px] uppercase">Target Table:</span>
+                      <span className="text-white font-bold">{result.error.table}</span>
                     </div>
                   )}
 
                   {result.error.constraint && (
-                    <div className="bg-black/30 p-2 rounded border border-rose-950">
-                      <span className="text-[#8E867A] block text-[9px] uppercase">Violated Constraint:</span>
-                      <span className="text-[#E0DBD1] font-bold">{result.error.constraint}</span>
+                    <div className="bg-black/40 p-2.5 rounded-lg border border-rose-900/30">
+                      <span className="text-white/40 block text-[9px] uppercase">Violated Constraint:</span>
+                      <span className="text-white font-bold">{result.error.constraint}</span>
                     </div>
                   )}
 
                   {result.error.position && (
-                    <div className="bg-black/30 p-2 rounded border border-rose-950">
-                      <span className="text-[#8E867A] block text-[9px] uppercase">Syntax Position:</span>
-                      <span className="text-[#E0DBD1] font-bold">Char {result.error.position}</span>
+                    <div className="bg-black/40 p-2.5 rounded-lg border border-rose-900/30">
+                      <span className="text-white/40 block text-[9px] uppercase">Syntax Position:</span>
+                      <span className="text-white font-bold">Char {result.error.position}</span>
                     </div>
                   )}
                 </div>
 
                 {result.error.detail && (
-                  <div className="text-xs text-[#BFA8A8] pt-1">
-                    <span className="text-[#8E867A]">Detail:</span> {result.error.detail}
+                  <div className="text-xs text-rose-300/80 pt-1">
+                    <span className="text-white/50">Detail:</span> {result.error.detail}
                   </div>
                 )}
 
                 {result.error.hint && (
-                  <div className="text-xs text-amber-300/80 pt-1">
-                    <span className="text-amber-500 font-bold">Hint:</span> {result.error.hint}
+                  <div className="text-xs text-amber-300/90 pt-1">
+                    <span className="text-amber-400 font-bold">Hint:</span> {result.error.hint}
                   </div>
                 )}
               </div>
@@ -698,12 +689,12 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
 
             {/* 2. Empty State / No Query Run Yet */}
             {!result && (
-              <div className="h-64 flex flex-col items-center justify-center text-center p-8 border border-dashed border-[#262B32] rounded-lg">
-                <Database className="w-10 h-10 text-[#3A404A] mb-3 stroke-[1.2]" />
-                <h3 className="font-sans font-bold text-sm tracking-wider uppercase text-[#7A746A]">
+              <div className="h-64 flex flex-col items-center justify-center text-center p-8 border border-dashed border-white/15 rounded-xl bg-white/5">
+                <Database className="w-10 h-10 text-white/30 mb-3 stroke-[1.2]" />
+                <h3 className="font-heading text-sm tracking-wider uppercase text-white/70">
                   Query Window Ready
                 </h3>
-                <p className="text-xs font-mono text-[#5E584F] max-w-md mt-1.5 leading-relaxed">
+                <p className="text-xs font-mono text-white/40 max-w-md mt-1.5 leading-relaxed">
                   Enter any standard SQL query above or choose a curated demonstration preset to inspect live PostgreSQL data, triggers, and execution plans.
                 </p>
               </div>
@@ -711,14 +702,14 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
 
             {/* 3. Non-SELECT Success (INSERT/UPDATE/DELETE/DDL) */}
             {result && result.success && (!result.rows || result.rows.length === 0) && (
-              <div className="bg-[#141A17] border border-emerald-900/60 rounded-lg p-6 font-mono text-center space-y-2">
+              <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-6 font-mono text-center space-y-2">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-2">
                   <Check className="w-5 h-5" />
                 </div>
                 <h4 className="text-sm font-bold text-emerald-300">
                   Command Executed Successfully
                 </h4>
-                <p className="text-xs text-[#9E988D]">
+                <p className="text-xs text-white/60">
                   {result.command || 'Statement'} completed. {result.rowCount || 0} row(s) affected in {result.executionTimeMs} ms.
                 </p>
               </div>
@@ -726,19 +717,19 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
 
             {/* 4. Tabular Results Grid for SELECT */}
             {result && result.success && result.rows && result.rows.length > 0 && (
-              <div className="border border-[#262A30] rounded-lg overflow-hidden bg-[#15171B] shadow-xl">
+              <div className="border border-white/10 rounded-xl overflow-hidden bg-[#0d0d0d] shadow-2xl">
                 <div className="max-h-[500px] overflow-auto scrollbar-thin">
                   <table className="w-full text-left border-collapse font-mono text-xs">
                     {/* Sticky Table Header */}
-                    <thead className="bg-[#1C2025] sticky top-0 z-10 border-b border-[#2E343D]">
+                    <thead className="bg-white/5 sticky top-0 z-10 border-b border-white/10">
                       <tr>
-                        <th className="px-3 py-2.5 text-[10px] text-[#787268] uppercase tracking-wider font-semibold border-r border-[#2A3038] w-12 text-center">
+                        <th className="px-3 py-2.5 text-[10px] text-white/50 uppercase tracking-wider font-semibold border-r border-white/10 w-12 text-center">
                           #
                         </th>
                         {(result.fields?.map(f => f.name) || Object.keys(result.rows[0])).map((header) => (
                           <th
                             key={header}
-                            className="px-4 py-2.5 text-[10px] text-[#D0C9BD] uppercase tracking-wider font-semibold border-r border-[#2A3038] last:border-r-0 whitespace-nowrap"
+                            className="px-4 py-2.5 text-[10px] text-white/80 uppercase tracking-wider font-semibold border-r border-white/10 last:border-r-0 whitespace-nowrap"
                           >
                             {header}
                           </th>
@@ -747,15 +738,15 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                     </thead>
 
                     {/* Table Body */}
-                    <tbody className="divide-y divide-[#1F2328]">
+                    <tbody className="divide-y divide-white/5">
                       {result.rows.map((row, idx) => {
                         const headers = result.fields?.map(f => f.name) || Object.keys(result.rows![0]);
                         return (
                           <tr
                             key={idx}
-                            className="hover:bg-[#1C2026] transition-colors odd:bg-[#141619] even:bg-[#16191D]"
+                            className="hover:bg-white/5 transition-colors odd:bg-black/30 even:bg-black/50"
                           >
-                            <td className="px-3 py-2 text-[10px] text-[#635E55] border-r border-[#22272E] text-center select-none">
+                            <td className="px-3 py-2 text-[10px] text-white/40 border-r border-white/10 text-center select-none">
                               {idx + 1}
                             </td>
                             {headers.map((header) => {
@@ -764,16 +755,16 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                               return (
                                 <td
                                   key={header}
-                                  className="px-4 py-2 border-r border-[#22272E] last:border-r-0 whitespace-nowrap text-[#ECE8E1]"
+                                  className="px-4 py-2 border-r border-white/10 last:border-r-0 whitespace-nowrap text-white/90"
                                 >
                                   {isNull ? (
-                                    <span className="text-[#8A6D3B] italic text-[10px]">NULL</span>
+                                    <span className="text-amber-500/70 italic text-[10px]">NULL</span>
                                   ) : typeof val === 'boolean' ? (
                                     <span className={val ? 'text-emerald-400' : 'text-rose-400'}>
                                       {val ? 'TRUE' : 'FALSE'}
                                     </span>
                                   ) : typeof val === 'object' ? (
-                                    <span className="text-[#A59F93]">{JSON.stringify(val)}</span>
+                                    <span className="text-white/60">{JSON.stringify(val)}</span>
                                   ) : (
                                     <span>{'' + val}</span>
                                   )}
@@ -788,7 +779,7 @@ export const SqlQueryWindow: React.FC<SqlQueryWindowProps> = ({
                 </div>
 
                 {/* Footer Count Bar */}
-                <div className="bg-[#181B1F] px-4 py-2.5 border-t border-[#262B32] text-[10px] font-mono text-[#8C867C] flex items-center justify-between">
+                <div className="bg-black/40 px-4 py-2.5 border-t border-white/10 text-[10px] font-mono text-white/50 flex items-center justify-between">
                   <span>Displaying {result.rows.length} rows</span>
                   <span>Execution: {result.executionTimeMs} ms</span>
                 </div>

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, ShieldCheck, User, Briefcase, Terminal, MapPin, Sparkles, Anchor, Compass } from 'lucide-react';
+import { apiClient, type ListingRecord } from '../services/api';
 
 interface HorizonSectionsProps {
-  onSelectPropertyToInquire: (propertyName: string) => void;
+  onSelectPropertyToInquire: (propertyName: string, listingId?: number) => void;
   onOpenPortal: (view: 'patron' | 'agent' | 'sql') => void;
 }
 
@@ -10,9 +11,20 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
   onSelectPropertyToInquire,
   onOpenPortal,
 }) => {
-  const listings = [
+  const [dbListings, setDbListings] = useState<ListingRecord[]>([]);
+
+  useEffect(() => {
+    apiClient.getListings().then((data) => {
+      if (data && data.length > 0) {
+        setDbListings(data);
+      }
+    });
+  }, []);
+
+  // Curated showcase combining database records with high-fidelity architectural assets
+  const fallbackListings = [
     {
-      id: 'horizon-01',
+      listingId: 1,
       title: 'THE HORIZON VILLA',
       location: '1084 PACIFIC COAST HIGHWAY, MALIBU, CA',
       price: '$18,500,000 USD',
@@ -24,7 +36,7 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
       features: ['270° Ocean Views', 'Private Beach Access', 'Cantilevered Pool', 'Smart Automation'],
     },
     {
-      id: 'pr-001',
+      listingId: 2,
       title: 'THE CANTILEVER HOUSE',
       location: 'ALGARVE COAST, PORTUGAL',
       price: '€ 4,850,000 EUR',
@@ -36,7 +48,7 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
       features: ['Poured Terracotta Concrete', 'Volcanic Stone Patio', 'Clifftop Gazebo', 'Solar Microgrid'],
     },
     {
-      id: 'pr-002',
+      listingId: 3,
       title: 'VILLA OBSIDIAN',
       location: 'LAKE LUGANO, TICINO, SWITZERLAND',
       price: 'CHF 7,200,000',
@@ -48,7 +60,7 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
       features: ['Slate Stone Facade', 'Blackened Steel Frames', 'Private Boat Slip', 'Wine Vault'],
     },
     {
-      id: 'pr-003',
+      listingId: 4,
       title: 'THE OCHRE SANCTUARY',
       location: 'KYOTO OUTSKIRTS, JAPAN',
       price: '¥ 680,000,000 JPY',
@@ -61,6 +73,26 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
     },
   ];
 
+  // Dynamic merged listings: if database has records, enrich or display them
+  const activeShowcase = dbListings.length > 0
+    ? dbListings.slice(0, 4).map((l, index) => {
+        const fallback = fallbackListings[index] || fallbackListings[0];
+        return {
+          listingId: l.listingId,
+          title: l.propertyName.toUpperCase(),
+          location: l.location.toUpperCase(),
+          price: `$${Number(l.listPrice).toLocaleString()} USD`,
+          beds: `${l.propertyType.includes('Villa') ? '6' : '5'} BEDS`,
+          baths: '6 BATHS',
+          sqft: `${l.areaSqFt ? Number(l.areaSqFt).toLocaleString() : '6,500'} SQ.FT`,
+          tag: l.propertyType.toUpperCase() || fallback.tag,
+          image: l.image || fallback.image,
+          features: fallback.features,
+          status: l.status,
+        };
+      })
+    : fallbackListings;
+
   return (
     <div className="relative z-30 bg-black text-white selection:bg-white selection:text-black">
       {/* ===================================================================== */}
@@ -71,22 +103,22 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
           <div>
             <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-rose-300 uppercase mb-2">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>CURATED FREEHOLD PORTFOLIO</span>
+              <span>CURATED FREEHOLD PORTFOLIO // LIVE POSTGRESQL</span>
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl uppercase tracking-wider text-white">
               Featured Coastal Estates
             </h2>
           </div>
-          <p className="font-geist text-white/60 text-xs sm:text-sm max-w-md leading-relaxed">
-            Every sovereign holding in our collection is vetted through architectural rigor, verified title deed provenance, and atomic blockchain registry.
+          <p className="font-geist text-white/60 text-xs sm:text-sm max-w-md leading-relaxed font-light">
+            Every sovereign holding in our collection is vetted through architectural rigor, verified title deed provenance, and atomic database registry.
           </p>
         </div>
 
         {/* Listings Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12">
-          {listings.map((estate) => (
+          {activeShowcase.map((estate) => (
             <div
-              key={estate.id}
+              key={estate.listingId}
               className="group relative bg-[#0d0d0d] border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all duration-500 flex flex-col justify-between shadow-2xl"
             >
               {/* Card Image */}
@@ -99,10 +131,15 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                 
                 {/* Top Badge */}
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 left-4 flex items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] font-mono tracking-widest text-white uppercase">
                     {estate.tag}
                   </span>
+                  {(estate as any).status && (estate as any).status !== 'ACTIVE' && (
+                    <span className="px-2.5 py-1 rounded-full bg-rose-950/80 border border-rose-500/40 text-[9px] font-mono uppercase text-rose-300">
+                      {(estate as any).status}
+                    </span>
+                  )}
                 </div>
 
                 {/* Price Display */}
@@ -161,10 +198,10 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
                 {/* Card Action Buttons */}
                 <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                   <button
-                    onClick={() => onSelectPropertyToInquire(`${estate.title} • ${estate.location} (${estate.price})`)}
-                    className="w-full sm:flex-1 group/btn flex items-center justify-center gap-2 bg-white text-black py-2.5 rounded-full font-medium text-xs tracking-wider uppercase hover:bg-gray-200 transition-all cursor-pointer"
+                    onClick={() => onSelectPropertyToInquire(`${estate.title} • ${estate.location} (${estate.price})`, estate.listingId)}
+                    className="w-full sm:flex-1 group/btn flex items-center justify-center gap-2 bg-white text-black py-2.5 rounded-full font-medium text-xs tracking-wider uppercase hover:bg-gray-200 transition-all cursor-pointer shadow-md"
                   >
-                    <span>Inquire On Estate</span>
+                    <span>Submit Tender Offer</span>
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-1" />
                   </button>
 
@@ -320,10 +357,10 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
                 <span>PACIFIC LIVE OPTICAL FEED • 34.0259° N, 118.7798° W</span>
               </div>
               <button
-                onClick={() => onSelectPropertyToInquire('The Horizon Villa • Malibu ($18,500,000)')}
+                onClick={() => onSelectPropertyToInquire('The Horizon Villa • Malibu ($18,500,000)', 1)}
                 className="px-4 py-2 rounded-full bg-white text-black font-geist text-xs font-medium uppercase tracking-wider hover:bg-gray-200 transition-colors cursor-pointer"
               >
-                Schedule Twilight Viewing
+                Submit Acquisition Offer
               </button>
             </div>
           </div>
@@ -331,7 +368,7 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
       </section>
 
       {/* ===================================================================== */}
-      {/* SECTION: INQUIRE & DATABASE PORTALS (#inquire) */}
+      {/* SECTION: ACQUISITION & DATABASE PORTALS (#inquire) */}
       {/* ===================================================================== */}
       <section id="inquire" className="py-24 md:py-32 px-5 sm:px-6 md:px-12 max-w-7xl mx-auto border-t border-white/10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -344,7 +381,7 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
               Begin Acquisition
             </h2>
             <p className="font-geist text-white/70 text-sm mt-3 leading-relaxed max-w-lg font-light">
-              Connect directly with our senior managing partners. All inquiries are held in strict legal confidence, backed by encrypted data handling and formal escrow guarantees.
+              Submit a formal acquisition tender directly into our sovereign database. All transactions are backed by encrypted PostgreSQL 15+ BCNF data handling and formal escrow guarantees.
             </p>
 
             <div className="mt-8 space-y-4 font-mono text-xs text-white/80">
@@ -364,10 +401,10 @@ export const HorizonSections: React.FC<HorizonSectionsProps> = ({
 
             <div className="mt-8">
               <button
-                onClick={() => onSelectPropertyToInquire('General Portfolio Inquiry')}
+                onClick={() => onSelectPropertyToInquire('The Horizon Villa • Malibu ($18,500,000)', 1)}
                 className="group flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full text-xs font-medium tracking-wider uppercase hover:bg-gray-200 transition-all shadow-xl cursor-pointer"
               >
-                <span>Launch Inquire Form</span>
+                <span>Submit Acquisition Tender</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
             </div>

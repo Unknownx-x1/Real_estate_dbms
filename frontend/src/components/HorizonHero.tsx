@@ -180,7 +180,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquire }) => {
               onClick={onOpenInquire}
               className="group flex items-center gap-2 bg-white text-gray-900 rounded-full pl-5 pr-2 py-2 hover:bg-gray-100 transition-all shadow-xl cursor-pointer text-xs md:text-sm font-geist font-medium tracking-wider uppercase"
             >
-              <span>Schedule Private Tour</span>
+              <span>Submit Acquisition Offer</span>
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-rose-200/70 group-hover:bg-rose-300 transition-colors">
                 <ArrowRight className="w-3.5 h-3.5 text-gray-800" />
               </span>

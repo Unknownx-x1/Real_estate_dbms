@@ -26,6 +26,7 @@ import {
   Database,
   Terminal,
 } from 'lucide-react';
+import { Logo } from '../HorizonLogo';
 
 interface AgentDashboardProps {
   session: UserSession;
@@ -223,21 +224,24 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
   const estimatedCommission = totalSettledVolume * 0.03; // Standard 3% luxury atelier broker fee
 
   return (
-    <div className="min-h-screen bg-[#1A1C1E] text-[#D8D2C6] font-sans selection:bg-[#D8D2C6] selection:text-[#1A1C1E]">
+    <div className="min-h-screen bg-black text-white font-geist selection:bg-white selection:text-black">
       {/* Top Header */}
-      <header className="border-b border-white/10 px-6 py-5 md:px-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[#141517]/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-white/10 px-6 py-4 md:px-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-black/85 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center space-x-5">
           <button
             onClick={onNavigateHome}
-            className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity"
+            className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-widest text-white/60 hover:text-white transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>EXIT TO HERO ARCHIVE</span>
+            <span>EXIT TO ARCHIVE</span>
           </button>
           <div className="h-4 w-[1px] bg-white/20" />
           <div className="flex items-center space-x-3">
-            <span className="font-display tracking-widest text-lg font-bold">MONOLITH</span>
-            <span className="text-[9px] font-mono tracking-super-wide px-2 py-0.5 bg-[#D8D2C6] text-[#1A1C1E] uppercase font-bold">
+            <Logo className="w-5 h-5 text-white" />
+            <span className="font-heading tracking-widest text-base font-bold text-white uppercase">
+              HORIZON ESTATES
+            </span>
+            <span className="text-[9px] font-mono tracking-super-wide px-2 py-0.5 rounded bg-rose-950/80 border border-rose-500/30 text-rose-300 uppercase">
               ATELIER / BROKER PORTAL
             </span>
           </div>
@@ -245,14 +249,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
         <div className="flex items-center space-x-6 text-[11px] font-mono">
           <div className="flex flex-col text-right">
-            <span className="font-bold uppercase tracking-wider">{session.name}</span>
-            <span className="opacity-50 text-[9px]">ID: BROKER-00{session.agentId || 1} • LICENSED NOTARY ATELIER</span>
+            <span className="font-bold uppercase tracking-wider text-white">{session.name}</span>
+            <span className="text-white/50 text-[9px]">ID: BROKER-00{session.agentId || 1} • LICENSED NOTARY ATELIER</span>
           </div>
 
           {onOpenSqlQuery && (
             <button
               onClick={onOpenSqlQuery}
-              className="px-3 py-1.5 border border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/30 hover:bg-emerald-950/60 transition-colors text-[9px] uppercase tracking-widest flex items-center space-x-1.5 text-emerald-300"
+              className="px-3 py-1.5 border border-emerald-500/30 hover:border-emerald-400 bg-emerald-950/30 hover:bg-emerald-950/60 transition-colors text-[9px] uppercase tracking-widest flex items-center space-x-1.5 text-emerald-300 rounded cursor-pointer"
               title="Launch Interactive Relational SQL Query Console"
             >
               <Terminal className="w-3 h-3 text-emerald-400" />
@@ -262,7 +266,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
           <button
             onClick={onSwitchToPatron}
-            className="px-3 py-1.5 border border-white/20 hover:border-white transition-colors text-[9px] uppercase tracking-widest flex items-center space-x-1.5"
+            className="px-3 py-1.5 border border-white/20 hover:border-white transition-colors text-[9px] uppercase tracking-widest flex items-center space-x-1.5 rounded cursor-pointer text-white/80 hover:text-white"
           >
             <span>SWITCH TO PATRON</span>
             <ChevronRight className="w-3 h-3" />
@@ -272,8 +276,8 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
       {/* Notification Toast */}
       {notification && (
-        <div className="fixed top-20 right-6 z-50 p-4 bg-[#D8D2C6] text-[#1A1C1E] border border-white/40 shadow-2xl flex items-center space-x-3 text-xs font-mono animate-in slide-in-from-top duration-300">
-          <Sparkles className="w-4 h-4 text-emerald-600" />
+        <div className="fixed top-20 right-6 z-50 p-4 bg-[#121212] text-white border border-white/20 shadow-2xl flex items-center space-x-3 text-xs font-mono animate-in slide-in-from-top duration-300 rounded-xl">
+          <Sparkles className="w-4 h-4 text-emerald-400" />
           <span>{notification}</span>
         </div>
       )}
@@ -282,17 +286,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       <main className="max-w-7xl mx-auto px-6 py-10 md:px-12">
         {/* Atelier Header & Metrics */}
         <section className="mb-10">
-          <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-super-wide opacity-50 mb-2">
+          <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-super-wide text-rose-300 mb-2">
             <Briefcase className="w-3.5 h-3.5" />
             <span>EXECUTIVE BROKERAGE DESK // CONSIGNMENT OPERATIONS</span>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-white/10">
             <div>
-              <h1 className="text-4xl md:text-6xl font-display uppercase tracking-tight leading-none">
-                ATELIER CURATION DESK
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-heading uppercase tracking-wider leading-none text-white">
+                Atelier Curation Desk
               </h1>
-              <p className="mt-3 text-sm max-w-xl text-[#D8D2C6]/75 font-sans">
+              <p className="mt-3 text-xs sm:text-sm max-w-xl text-white/70 font-geist font-light leading-relaxed">
                 Active architectural inventory, atomic tender execution engine, multi-party deed settlement, and luxury commission yield.
               </p>
             </div>
@@ -300,21 +304,21 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsNewListingOpen(true)}
-                className="px-5 py-3 bg-[#D8D2C6] text-[#1A1C1E] text-[10px] font-mono uppercase tracking-widest font-bold flex items-center space-x-2 hover:opacity-90 active:scale-[0.98] transition-all shadow-lg"
+                className="px-5 py-2.5 bg-white text-black text-[10px] font-mono uppercase tracking-widest font-medium flex items-center space-x-2 hover:bg-gray-200 active:scale-[0.98] transition-all shadow-md rounded-full cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>PUBLISH NEW RESIDENCE</span>
               </button>
               <button
                 onClick={loadAllData}
-                className="p-3 border border-white/20 hover:border-white transition-colors"
+                className="p-2.5 rounded-full border border-white/20 hover:border-white text-white/80 hover:text-white transition-colors cursor-pointer"
                 title="Refresh Live Database"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               </button>
               <button
                 onClick={handleSeedDemoData}
-                className="p-3 border border-white/20 hover:border-amber-400 text-amber-400 hover:bg-amber-950/30 transition-colors flex items-center space-x-1.5 text-[9px] font-mono uppercase tracking-widest"
+                className="px-3.5 py-2 border border-white/20 hover:border-amber-400 text-amber-400 hover:bg-amber-950/30 transition-colors flex items-center space-x-1.5 text-[9px] font-mono uppercase tracking-widest rounded-full cursor-pointer"
                 title="Re-seed database with standard 13-relation demo data"
               >
                 <Database className="w-3.5 h-3.5" />
@@ -325,44 +329,44 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
           {/* Metric Badges */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <div className="p-5 border border-white/10 bg-white/5">
-              <div className="text-[9px] font-mono uppercase tracking-widest opacity-60 mb-1">
+            <div className="p-5 rounded-xl border border-white/10 bg-[#0d0d0d]">
+              <div className="text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1">
                 TOTAL LISTED VOLUME
               </div>
-              <div className="text-2xl md:text-3xl font-display tracking-tight text-white">
+              <div className="text-2xl md:text-3xl font-heading tracking-tight text-white">
                 ${totalVolumeListed.toLocaleString()}
               </div>
-              <div className="text-[9px] font-mono opacity-50 mt-1">{listings.length} RESIDENCES IN REPOSITORY</div>
+              <div className="text-[9px] font-mono text-white/50 mt-1">{listings.length} RESIDENCES IN REPOSITORY</div>
             </div>
 
-            <div className="p-5 border border-white/10 bg-white/5">
-              <div className="text-[9px] font-mono uppercase tracking-widest opacity-60 mb-1">
+            <div className="p-5 rounded-xl border border-white/10 bg-[#0d0d0d]">
+              <div className="text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1">
                 SETTLED TRANSACTION VOLUME
               </div>
-              <div className="text-2xl md:text-3xl font-display tracking-tight text-emerald-400">
+              <div className="text-2xl md:text-3xl font-heading tracking-tight text-emerald-400">
                 ${totalSettledVolume.toLocaleString()}
               </div>
-              <div className="text-[9px] font-mono opacity-50 mt-1">{closedDealsCount} CLOSED NOTARY CONTRACTS</div>
+              <div className="text-[9px] font-mono text-white/50 mt-1">{closedDealsCount} CLOSED NOTARY CONTRACTS</div>
             </div>
 
-            <div className="p-5 border border-white/10 bg-white/5">
-              <div className="text-[9px] font-mono uppercase tracking-widest opacity-60 mb-1">
+            <div className="p-5 rounded-xl border border-white/10 bg-[#0d0d0d]">
+              <div className="text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1">
                 PENDING DELIBERATIONS
               </div>
-              <div className="text-2xl md:text-3xl font-display tracking-tight text-amber-400">
+              <div className="text-2xl md:text-3xl font-heading tracking-tight text-amber-300">
                 {pendingOffersCount}
               </div>
-              <div className="text-[9px] font-mono opacity-50 mt-1">REQUIRING BROKER REVIEW</div>
+              <div className="text-[9px] font-mono text-white/50 mt-1">REQUIRING BROKER REVIEW</div>
             </div>
 
-            <div className="p-5 border border-white/10 bg-white/5">
-              <div className="text-[9px] font-mono uppercase tracking-widest opacity-60 mb-1">
+            <div className="p-5 rounded-xl border border-white/10 bg-[#0d0d0d]">
+              <div className="text-[9px] font-mono uppercase tracking-widest text-white/50 mb-1">
                 ATELIER YIELD (3% FEE)
               </div>
-              <div className="text-2xl md:text-3xl font-display tracking-tight text-[#D8D2C6]">
+              <div className="text-2xl md:text-3xl font-heading tracking-tight text-rose-200">
                 ${estimatedCommission.toLocaleString()}
               </div>
-              <div className="text-[9px] font-mono opacity-50 mt-1">CUSTODIAL ACCRUAL</div>
+              <div className="text-[9px] font-mono text-white/50 mt-1">CUSTODIAL ACCRUAL</div>
             </div>
           </div>
         </section>
@@ -371,10 +375,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         <nav className="flex items-center space-x-1 border-b border-white/10 mb-8 text-[11px] font-mono uppercase tracking-wider overflow-x-auto">
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap ${
+            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'inventory'
-                ? 'border-[#D8D2C6] font-bold text-white'
-                : 'border-transparent opacity-50 hover:opacity-80'
+                ? 'border-white font-medium text-white'
+                : 'border-transparent text-white/50 hover:text-white'
             }`}
           >
             <Building className="w-3.5 h-3.5" />
@@ -383,10 +387,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('offers')}
-            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap ${
+            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'offers'
-                ? 'border-[#D8D2C6] font-bold text-white'
-                : 'border-transparent opacity-50 hover:opacity-80'
+                ? 'border-white font-medium text-white'
+                : 'border-transparent text-white/50 hover:text-white'
             }`}
           >
             <FileCheck2 className="w-3.5 h-3.5" />
@@ -395,10 +399,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('transactions')}
-            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap ${
+            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'transactions'
-                ? 'border-[#D8D2C6] font-bold text-white'
-                : 'border-transparent opacity-50 hover:opacity-80'
+                ? 'border-white font-medium text-white'
+                : 'border-transparent text-white/50 hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -407,10 +411,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap ${
+            className={`px-6 py-3 border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap cursor-pointer ${
               activeTab === 'analytics'
-                ? 'border-[#D8D2C6] font-bold text-white'
-                : 'border-transparent opacity-50 hover:opacity-80'
+                ? 'border-white font-medium text-white'
+                : 'border-transparent text-white/50 hover:text-white'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5" />
@@ -423,23 +427,23 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           <section className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-display uppercase tracking-tight text-white">Residence Consignments</h2>
-                <p className="text-xs text-[#D8D2C6]/60 font-sans mt-0.5">
+                <h2 className="text-xl font-heading uppercase tracking-wider text-white">Residence Consignments</h2>
+                <p className="text-xs text-white/60 font-geist mt-0.5">
                   Full lifecycle property listing inventory with atomic price revision & status controls.
                 </p>
               </div>
               <button
                 onClick={() => setIsNewListingOpen(true)}
-                className="text-[10px] font-mono uppercase tracking-widest text-[#D8D2C6] underline underline-offset-4 hover:opacity-80"
+                className="text-[10px] font-mono uppercase tracking-widest text-rose-300 underline underline-offset-4 hover:text-rose-200 cursor-pointer"
               >
                 + PUBLISH RESIDENCE
               </button>
             </div>
 
-            <div className="overflow-x-auto border border-white/10 bg-white/5">
+            <div className="overflow-x-auto border border-white/10 bg-[#0c0c0c] rounded-xl shadow-2xl">
               <table className="w-full text-left text-xs font-mono">
                 <thead>
-                  <tr className="border-b border-white/10 bg-black/40 text-[9px] uppercase tracking-widest opacity-60">
+                  <tr className="border-b border-white/10 bg-white/5 text-[9px] uppercase tracking-widest text-white/50">
                     <th className="p-4">LISTING ID</th>
                     <th className="p-4">RESIDENCE & ARCHITECTURE</th>
                     <th className="p-4">LOCATION</th>
@@ -454,19 +458,19 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     <tr key={l.listingId} className="hover:bg-white/5 transition-colors">
                       <td className="p-4 font-bold text-white/80">LST-00{l.listingId}</td>
                       <td className="p-4">
-                        <div className="font-sans font-medium text-white text-sm">{l.propertyName}</div>
-                        <div className="text-[10px] opacity-60 font-mono mt-0.5">{l.propertyType}</div>
+                        <div className="font-geist font-medium text-white text-sm">{l.propertyName}</div>
+                        <div className="text-[10px] text-white/50 font-mono mt-0.5">{l.propertyType}</div>
                       </td>
-                      <td className="p-4 opacity-80">{l.location}</td>
-                      <td className="p-4 font-bold text-white text-sm">${l.listPrice.toLocaleString()}</td>
-                      <td className="p-4 opacity-75">{l.areaSqFt.toLocaleString()} SQ FT</td>
+                      <td className="p-4 text-white/70">{l.location}</td>
+                      <td className="p-4 font-bold text-emerald-400 text-sm">${l.listPrice.toLocaleString()}</td>
+                      <td className="p-4 text-white/70">{l.areaSqFt.toLocaleString()} SQ FT</td>
                       <td className="p-4">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                             l.status === 'ACTIVE'
-                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/40'
+                              ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
                               : l.status === 'SOLD'
-                              ? 'bg-amber-950 text-amber-300 border border-amber-700/40'
+                              ? 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
                               : 'bg-white/10 text-white/60 border border-white/20'
                           }`}
                         >
@@ -477,7 +481,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                         <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={() => openEditModal(l)}
-                            className="px-2.5 py-1 border border-white/20 hover:border-white text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1"
+                            className="px-2.5 py-1 border border-white/20 hover:border-white text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1 rounded cursor-pointer text-white/80 hover:text-white"
                             title="Revise residence specifications"
                           >
                             <Edit2 className="w-2.5 h-2.5" />
@@ -485,7 +489,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                           </button>
                           <button
                             onClick={() => setConfirmDeleteListing(l)}
-                            className="px-2 py-1 border border-white/20 hover:border-rose-400 text-rose-400 hover:bg-rose-950/30 text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1"
+                            className="px-2.5 py-1 border border-rose-500/30 hover:border-rose-400 text-rose-400 hover:bg-rose-950/30 text-[9px] uppercase tracking-widest transition-colors flex items-center space-x-1 rounded cursor-pointer"
                             title="De-list and delete residence"
                           >
                             <Trash2 className="w-2.5 h-2.5" />
@@ -505,17 +509,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         {activeTab === 'offers' && (
           <section className="space-y-6">
             <div>
-              <h2 className="text-xl font-display uppercase tracking-tight text-white">
+              <h2 className="text-xl font-heading uppercase tracking-wider text-white">
                 Incoming Acquisition Tenders & Atomic Engine
               </h2>
-              <p className="text-xs text-[#D8D2C6]/60 font-sans mt-0.5">
+              <p className="text-xs text-white/60 font-geist mt-0.5">
                 Deliberate prospective patron tenders. Accepting an offer atomically issues deeds, rejects competing bids, and marks residence SOLD.
               </p>
             </div>
 
             {offers.length === 0 ? (
-              <div className="p-12 border border-dashed border-white/20 text-center">
-                <p className="text-sm font-editorial italic opacity-70">No pending acquisition offers received.</p>
+              <div className="p-12 rounded-xl border border-dashed border-white/20 text-center bg-white/5">
+                <p className="text-sm italic text-white/60">No pending acquisition offers received.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -526,37 +530,37 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   return (
                     <div
                       key={offer.offerId}
-                      className="border border-white/10 bg-white/5 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-white/30 transition-all"
+                      className="border border-white/10 bg-[#0d0d0d] p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-white/30 transition-all shadow-xl"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center space-x-3 text-[10px] font-mono">
-                          <span className="font-bold text-white/60">TENDER // #{offer.offerId}</span>
-                          <span className="px-2 py-0.5 bg-white/10 uppercase">{offer.offerDate}</span>
+                          <span className="font-bold text-white/50">TENDER // #{offer.offerId}</span>
+                          <span className="px-2 py-0.5 rounded bg-white/10 uppercase text-white/70">{offer.offerDate}</span>
                           <span
-                            className={`px-2 py-0.5 text-[9px] font-bold uppercase ${
+                            className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
                               offer.status === 'ACCEPTED'
-                                ? 'bg-emerald-950 text-emerald-300'
+                                ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-500/30'
                                 : offer.status === 'PENDING'
-                                ? 'bg-amber-950 text-amber-300'
-                                : 'bg-rose-950 text-rose-300'
+                                ? 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
+                                : 'bg-rose-950/60 text-rose-400 border border-rose-500/30'
                             }`}
                           >
                             {offer.status}
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-display uppercase tracking-tight text-white">
+                        <h3 className="text-xl font-heading uppercase tracking-wider text-white">
                           {offer.propertyName}
                         </h3>
 
-                        <div className="text-xs font-mono text-[#D8D2C6]/80 flex items-center space-x-4 pt-1">
+                        <div className="text-xs font-mono text-white/70 flex flex-wrap items-center gap-3 pt-1">
                           <span>PATRON: <strong className="text-white">{offer.customerName}</strong></span>
                           <span>•</span>
-                          <span>TENDER VALUATION: <strong className="text-white text-sm">${offer.offerAmount.toLocaleString()}</strong></span>
+                          <span>TENDER: <strong className="text-emerald-400 text-sm font-bold">${offer.offerAmount.toLocaleString()}</strong></span>
                           {targetListing && (
                             <>
                               <span>•</span>
-                              <span className="opacity-60">ASK: ${targetListing.listPrice.toLocaleString()}</span>
+                              <span className="text-white/50">ASK: ${targetListing.listPrice.toLocaleString()}</span>
                               {isUnderAsk && (
                                 <span className="text-amber-400 text-[10px] font-mono">
                                   (-${(targetListing.listPrice - offer.offerAmount).toLocaleString()})
@@ -573,21 +577,22 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                           <>
                             <button
                               onClick={() => setConfirmAcceptOffer(offer)}
-                              className="px-4 py-2.5 bg-emerald-500 text-black font-bold text-[10px] font-mono uppercase tracking-widest flex items-center space-x-1.5 hover:bg-emerald-400 active:scale-95 transition-all shadow-md"
+                              className="px-4 py-2 bg-emerald-400 text-black font-medium text-[10px] font-mono uppercase tracking-widest flex items-center space-x-1.5 hover:bg-emerald-300 active:scale-95 transition-all shadow-md rounded-full cursor-pointer"
                             >
                               <CheckCircle className="w-3.5 h-3.5" />
-                              <span>ACCEPT & EXECUTE ATOMIC SALE</span>
+                              <span>ACCEPT & EXECUTE SALE</span>
                             </button>
 
                             <button
                               onClick={() => handleRejectOffer(offer.offerId)}
-                              className="px-3 py-2.5 border border-white/20 hover:border-rose-400 text-rose-400 text-[10px] font-mono uppercase tracking-widest transition-colors"
+                              className="px-3 py-2 border border-rose-500/40 hover:border-rose-400 text-rose-400 text-[10px] font-mono uppercase tracking-widest transition-colors rounded-full cursor-pointer hover:bg-rose-950/30"
+                              title="Reject Offer"
                             >
                               <XCircle className="w-3.5 h-3.5" />
                             </button>
                           </>
                         ) : (
-                          <div className="text-[10px] font-mono uppercase tracking-widest opacity-60">
+                          <div className="text-[10px] font-mono uppercase tracking-widest text-white/50">
                             DECISION RECORDED // {offer.status}
                           </div>
                         )}
@@ -604,16 +609,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         {activeTab === 'transactions' && (
           <section className="space-y-6">
             <div>
-              <h2 className="text-xl font-display uppercase tracking-tight text-white">Closed Notary Transactions</h2>
-              <p className="text-xs text-[#D8D2C6]/60 font-sans mt-0.5">
+              <h2 className="text-xl font-heading uppercase tracking-wider text-white">Closed Notary Transactions</h2>
+              <p className="text-xs text-white/60 font-geist mt-0.5">
                 Immutable deed settlement registry, legal notary registration numbers, and custodial fund flows.
               </p>
             </div>
 
-            <div className="overflow-x-auto border border-white/10 bg-white/5">
+            <div className="overflow-x-auto border border-white/10 bg-[#0c0c0c] rounded-xl shadow-2xl">
               <table className="w-full text-left text-xs font-mono">
                 <thead>
-                  <tr className="border-b border-white/10 bg-black/40 text-[9px] uppercase tracking-widest opacity-60">
+                  <tr className="border-b border-white/10 bg-white/5 text-[9px] uppercase tracking-widest text-white/50">
                     <th className="p-4">REGISTRATION CODE</th>
                     <th className="p-4">RESIDENCE</th>
                     <th className="p-4">CONTRACT TYPE</th>
@@ -626,11 +631,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   {transactions.map((t) => (
                     <tr key={t.transactionId} className="hover:bg-white/5 transition-colors">
                       <td className="p-4 font-bold text-white">{t.registrationOrLease}</td>
-                      <td className="p-4 font-sans font-medium text-white">{t.propertyName}</td>
-                      <td className="p-4 opacity-80 uppercase">{t.transactionType}</td>
+                      <td className="p-4 font-geist font-medium text-white">{t.propertyName}</td>
+                      <td className="p-4 text-white/70 uppercase">{t.transactionType}</td>
                       <td className="p-4 font-bold text-white text-sm">${t.amount.toLocaleString()}</td>
                       <td className="p-4 font-bold text-emerald-400">${(t.paymentsPaid || 0).toLocaleString()}</td>
-                      <td className="p-4 opacity-60">{t.transactionDate}</td>
+                      <td className="p-4 text-white/50">{t.transactionDate}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -643,45 +648,45 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         {activeTab === 'analytics' && (
           <section className="space-y-8">
             <div>
-              <h2 className="text-xl font-display uppercase tracking-tight text-white">Atelier Performance Analytics</h2>
-              <p className="text-xs text-[#D8D2C6]/60 font-sans mt-0.5">
+              <h2 className="text-xl font-heading uppercase tracking-wider text-white">Atelier Performance Analytics</h2>
+              <p className="text-xs text-white/60 font-geist mt-0.5">
                 Quantitative velocity metrics, average square footage realization, and gross broker yields.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="border border-white/10 p-6 bg-white/5">
-                <span className="text-[9px] font-mono uppercase tracking-widest opacity-60 block mb-1">
+              <div className="border border-white/10 p-6 rounded-xl bg-[#0d0d0d] shadow-xl">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-white/50 block mb-1">
                   AVERAGE SQUARE FOOTAGE VALUATION
                 </span>
-                <div className="text-3xl font-display text-white">
+                <div className="text-3xl font-heading text-white">
                   ${Math.round(totalVolumeListed / (listings.reduce((s, l) => s + l.areaSqFt, 0) || 1)).toLocaleString()} / SQ FT
                 </div>
-                <p className="text-xs font-sans opacity-60 mt-2">
+                <p className="text-xs font-geist text-white/60 mt-2">
                   Benchmark for brutalist & high-thermal concrete residential assets.
                 </p>
               </div>
 
-              <div className="border border-white/10 p-6 bg-white/5">
-                <span className="text-[9px] font-mono uppercase tracking-widest opacity-60 block mb-1">
+              <div className="border border-white/10 p-6 rounded-xl bg-[#0d0d0d] shadow-xl">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-white/50 block mb-1">
                   OFFER-TO-TRANSACTION RATIO
                 </span>
-                <div className="text-3xl font-display text-white">
+                <div className="text-3xl font-heading text-white">
                   {offers.length > 0 ? `${Math.round((closedDealsCount / offers.length) * 100)}%` : '0%'}
                 </div>
-                <p className="text-xs font-sans opacity-60 mt-2">
+                <p className="text-xs font-geist text-white/60 mt-2">
                   High-intent patron conversions cleared through custodial escrow.
                 </p>
               </div>
 
-              <div className="border border-white/10 p-6 bg-white/5">
-                <span className="text-[9px] font-mono uppercase tracking-widest opacity-60 block mb-1">
+              <div className="border border-white/10 p-6 rounded-xl bg-[#0d0d0d] shadow-xl">
+                <span className="text-[9px] font-mono uppercase tracking-widest text-white/50 block mb-1">
                   INVENTORY TURNOVER STATUS
                 </span>
-                <div className="text-3xl font-display text-emerald-400">
+                <div className="text-3xl font-heading text-emerald-400">
                   {listings.filter((l) => l.status === 'SOLD').length} SOLD / {listings.length} TOTAL
                 </div>
-                <p className="text-xs font-sans opacity-60 mt-2">
+                <p className="text-xs font-geist text-white/60 mt-2">
                   Sovereign demand remains at an all-time peak for off-market structures.
                 </p>
               </div>
@@ -694,45 +699,45 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       {/* MODAL: PUBLISH NEW RESIDENCE */}
       {/* ========================================================================= */}
       {isNewListingOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
-          <div className="relative w-full max-w-lg bg-[#1A1C1E] text-[#D8D2C6] border border-white/20 p-8 shadow-2xl font-mono">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-[#0d0d0d] text-white border border-white/15 p-8 rounded-2xl shadow-2xl font-mono">
             <button
               onClick={() => setIsNewListingOpen(false)}
-              className="absolute top-6 right-6 p-1.5 border border-white/20 hover:border-white"
+              className="absolute top-6 right-6 p-1.5 rounded-full border border-white/20 hover:border-white text-white/60 hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-2 text-[9px] uppercase tracking-super-wide opacity-60 mb-2">
+            <div className="flex items-center space-x-2 text-[9px] uppercase tracking-super-wide text-rose-300 mb-2">
               <Building className="w-3.5 h-3.5" />
-              <span>NEW CONSIGNMENT</span>
+              <span>NEW CONSIGNMENT SPECIFICATION</span>
             </div>
 
-            <h3 className="text-2xl font-display uppercase tracking-tight text-white mb-2">
-              PUBLISH ARCHITECTURAL RESIDENCE
+            <h3 className="text-2xl font-heading uppercase tracking-wider text-white mb-2">
+              Publish Architectural Residence
             </h3>
-            <p className="text-xs font-sans opacity-70 mb-6">
-              Create a new monograph entry in the Monolith global property catalogue.
+            <p className="text-xs text-white/60 mb-6 font-geist">
+              Create a new monograph entry in the Horizon Estates global property catalogue.
             </p>
 
             <form onSubmit={handleCreateListing} className="space-y-4">
               <div>
-                <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                   RESIDENCE TITLE
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. The Monolith Pavilion"
+                  placeholder="e.g. The Horizon Pavilion"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                  className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     LOCATION
                   </label>
                   <input
@@ -741,30 +746,30 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     placeholder="e.g. Reykjavik, Iceland"
                     value={newLocation}
                     onChange={(e) => setNewLocation(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     ARCHITECTURAL TYPOLOGY
                   </label>
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-[#D8D2C6]"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none"
                   >
-                    <option value="Brutalist Cliff Residence">Brutalist Cliff Residence</option>
-                    <option value="Geometric Monolith Villa">Geometric Monolith Villa</option>
-                    <option value="Nordic Earth Pavilion">Nordic Earth Pavilion</option>
-                    <option value="Desert Rammed-Earth Retreat">Desert Rammed-Earth Retreat</option>
+                    <option value="Brutalist Cliff Residence" className="bg-[#121212] text-white">Brutalist Cliff Residence</option>
+                    <option value="Geometric Monolith Villa" className="bg-[#121212] text-white">Geometric Monolith Villa</option>
+                    <option value="Nordic Earth Pavilion" className="bg-[#121212] text-white">Nordic Earth Pavilion</option>
+                    <option value="Desert Rammed-Earth Retreat" className="bg-[#121212] text-white">Desert Rammed-Earth Retreat</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     ASKING PRICE (USD)
                   </label>
                   <input
@@ -775,12 +780,12 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     placeholder="e.g. 6400000"
                     value={newPrice}
                     onChange={(e) => setNewPrice(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none font-bold"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40 font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     INTERIOR AREA (SQ FT)
                   </label>
                   <input
@@ -790,13 +795,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     placeholder="e.g. 5500"
                     value={newArea}
                     onChange={(e) => setNewArea(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                   HERO ARCHIVAL IMAGE URL (OPTIONAL)
                 </label>
                 <input
@@ -804,13 +809,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   placeholder="https://images.unsplash.com/..."
                   value={newImage}
                   onChange={(e) => setNewImage(e.target.value)}
-                  className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-white/70"
+                  className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-[#D8D2C6] text-[#1A1C1E] font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity"
+                className="w-full py-3 bg-white text-black font-medium text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-gray-200 transition-colors rounded-full cursor-pointer shadow-lg"
               >
                 <span>PUBLISH TO GLOBAL ARCHIVE</span>
                 <CheckCircle className="w-3.5 h-3.5" />
@@ -824,30 +829,30 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       {/* MODAL: REVISE PROPERTY MONOGRAPH (UPDATE) */}
       {/* ========================================================================= */}
       {editingListing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
-          <div className="relative w-full max-w-lg bg-[#1A1C1E] text-[#D8D2C6] border border-white/20 p-8 shadow-2xl font-mono">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-[#0d0d0d] text-white border border-white/15 p-8 rounded-2xl shadow-2xl font-mono">
             <button
               onClick={() => setEditingListing(null)}
-              className="absolute top-6 right-6 p-1.5 border border-white/20 hover:border-white"
+              className="absolute top-6 right-6 p-1.5 rounded-full border border-white/20 hover:border-white text-white/60 hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-2 text-[9px] uppercase tracking-super-wide opacity-60 mb-2">
+            <div className="flex items-center space-x-2 text-[9px] uppercase tracking-super-wide text-rose-300 mb-2">
               <Edit2 className="w-3.5 h-3.5" />
               <span>INVENTORY SPECIFICATION UPDATE</span>
             </div>
 
-            <h3 className="text-2xl font-display uppercase tracking-tight text-white mb-2">
-              REVISE RESIDENCE MONOGRAPH
+            <h3 className="text-2xl font-heading uppercase tracking-wider text-white mb-2">
+              Revise Residence Monograph
             </h3>
-            <p className="text-xs font-sans opacity-70 mb-5">
+            <p className="text-xs text-white/60 mb-5 font-geist">
               Update pricing, availability status, architectural metadata, and archival imagery in real-time.
             </p>
 
             <form onSubmit={handleUpdateListing} className="space-y-4">
               <div>
-                <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                   RESIDENCE TITLE / DESCRIPTION
                 </label>
                 <input
@@ -855,13 +860,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                  className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     LOCATION
                   </label>
                   <input
@@ -869,30 +874,30 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     required
                     value={editLocation}
                     onChange={(e) => setEditLocation(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     ARCHITECTURAL TYPOLOGY
                   </label>
                   <select
                     value={editType}
                     onChange={(e) => setEditType(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-[#D8D2C6]"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none"
                   >
-                    <option value="Brutalist Cliff Residence">Brutalist Cliff Residence</option>
-                    <option value="Geometric Monolith Villa">Geometric Monolith Villa</option>
-                    <option value="Nordic Earth Pavilion">Nordic Earth Pavilion</option>
-                    <option value="Desert Rammed-Earth Retreat">Desert Rammed-Earth Retreat</option>
+                    <option value="Brutalist Cliff Residence" className="bg-[#121212] text-white">Brutalist Cliff Residence</option>
+                    <option value="Geometric Monolith Villa" className="bg-[#121212] text-white">Geometric Monolith Villa</option>
+                    <option value="Nordic Earth Pavilion" className="bg-[#121212] text-white">Nordic Earth Pavilion</option>
+                    <option value="Desert Rammed-Earth Retreat" className="bg-[#121212] text-white">Desert Rammed-Earth Retreat</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     ASKING PRICE (USD)
                   </label>
                   <input
@@ -902,12 +907,12 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     step="50000"
                     value={editPrice}
                     onChange={(e) => setEditPrice(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none font-bold text-white"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40 font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     INTERIOR AREA (SQ FT)
                   </label>
                   <input
@@ -916,38 +921,38 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     min="500"
                     value={editArea}
                     onChange={(e) => setEditArea(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     INVENTORY STATUS
                   </label>
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value as any)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-[#D8D2C6]"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none"
                   >
-                    <option value="ACTIVE">ACTIVE (Accepting Tenders)</option>
-                    <option value="PENDING">PENDING (In Negotiation)</option>
-                    <option value="SOLD">SOLD (Settled Contract)</option>
-                    <option value="RENTED">RENTED (Leased)</option>
-                    <option value="INACTIVE">INACTIVE (Withdrawn)</option>
+                    <option value="ACTIVE" className="bg-[#121212] text-white">ACTIVE (Accepting Tenders)</option>
+                    <option value="PENDING" className="bg-[#121212] text-white">PENDING (In Negotiation)</option>
+                    <option value="SOLD" className="bg-[#121212] text-white">SOLD (Settled Contract)</option>
+                    <option value="RENTED" className="bg-[#121212] text-white">RENTED (Leased)</option>
+                    <option value="INACTIVE" className="bg-[#121212] text-white">INACTIVE (Withdrawn)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[9px] uppercase tracking-widest opacity-60 mb-1.5">
+                  <label className="block text-[9px] uppercase tracking-widest text-white/60 mb-1.5">
                     HERO IMAGE URL
                   </label>
                   <input
                     type="url"
                     value={editImage}
                     onChange={(e) => setEditImage(e.target.value)}
-                    className="w-full p-2.5 bg-black/40 border border-white/20 text-xs focus:outline-none text-white/70"
+                    className="w-full p-2.5 bg-white/5 border border-white/15 rounded-lg text-xs text-white focus:outline-none focus:border-white/40"
                   />
                 </div>
               </div>
@@ -956,15 +961,15 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingListing(null)}
-                  className="w-1/3 py-3 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors"
+                  className="w-1/3 py-2.5 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors rounded-full cursor-pointer text-white/70 hover:text-white"
                 >
                   DISCARD
                 </button>
                 <button
                   type="submit"
-                  className="w-2/3 py-3 bg-[#D8D2C6] text-[#1A1C1E] font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity"
+                  className="w-2/3 py-2.5 bg-white text-black font-medium text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-gray-200 transition-colors rounded-full cursor-pointer shadow-lg"
                 >
-                  <span>COMMIT SPECIFICATION REVISION</span>
+                  <span>COMMIT REVISION</span>
                   <CheckCircle className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -977,11 +982,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       {/* MODAL: CONFIRM DE-LIST & DELETE RESIDENCE */}
       {/* ========================================================================= */}
       {confirmDeleteListing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="relative w-full max-w-md bg-[#141517] text-[#D8D2C6] border border-rose-500/40 p-8 shadow-2xl font-mono">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+          <div className="relative w-full max-w-md bg-[#0d0d0d] text-white border border-rose-500/40 p-8 rounded-2xl shadow-2xl font-mono">
             <button
               onClick={() => setConfirmDeleteListing(null)}
-              className="absolute top-6 right-6 p-1.5 border border-white/20 hover:border-white"
+              className="absolute top-6 right-6 p-1.5 rounded-full border border-white/20 hover:border-white text-white/60 hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -991,17 +996,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <span>PERMANENT CONSIGNMENT DELETION</span>
             </div>
 
-            <h3 className="text-2xl font-display uppercase tracking-tight text-white mb-2">
-              DE-LIST RESIDENCE
+            <h3 className="text-2xl font-heading uppercase tracking-wider text-white mb-2">
+              De-list Residence
             </h3>
 
-            <p className="text-xs font-sans opacity-80 mb-6">
-              Are you certain you wish to delete this property from the Monolith catalogue and DBMS repository?
+            <p className="text-xs text-white/70 mb-6 font-geist">
+              Are you certain you wish to delete this property from the Horizon Estates catalogue and DBMS repository?
             </p>
 
-            <div className="p-4 bg-black/60 border border-white/10 text-xs mb-6 space-y-1">
+            <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-xs mb-6 space-y-1">
               <div className="text-white font-bold text-sm">{confirmDeleteListing.propertyName}</div>
-              <div className="text-[10px] opacity-60">{confirmDeleteListing.location} • {confirmDeleteListing.propertyType}</div>
+              <div className="text-[10px] text-white/50">{confirmDeleteListing.location} • {confirmDeleteListing.propertyType}</div>
               <div className="text-emerald-400 font-bold">${confirmDeleteListing.listPrice.toLocaleString()}</div>
             </div>
 
@@ -1009,7 +1014,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setConfirmDeleteListing(null)}
-                className="py-3 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors"
+                className="py-2.5 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors rounded-full cursor-pointer text-white/70 hover:text-white"
               >
                 CANCEL
               </button>
@@ -1017,7 +1022,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <button
                 type="button"
                 onClick={handleDeleteListing}
-                className="py-3 bg-rose-600 text-white font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-rose-500 transition-colors shadow-lg"
+                className="py-2.5 bg-rose-600 text-white font-medium text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-rose-500 transition-colors shadow-lg rounded-full cursor-pointer"
               >
                 <span>CONFIRM DELETION</span>
                 <Trash2 className="w-3.5 h-3.5" />
@@ -1031,11 +1036,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
       {/* MODAL: CONFIRM ATOMIC CONTRACT EXECUTION */}
       {/* ========================================================================= */}
       {confirmAcceptOffer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="relative w-full max-w-lg bg-[#141517] text-[#D8D2C6] border border-amber-500/40 p-8 shadow-2xl font-mono">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-[#0d0d0d] text-white border border-amber-500/40 p-8 rounded-2xl shadow-2xl font-mono">
             <button
               onClick={() => setConfirmAcceptOffer(null)}
-              className="absolute top-6 right-6 p-1.5 border border-white/20 hover:border-white"
+              className="absolute top-6 right-6 p-1.5 rounded-full border border-white/20 hover:border-white text-white/60 hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1045,37 +1050,37 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <span>ATOMIC DBMS TRANSACTION // IRREVOCABLE SETTLEMENT</span>
             </div>
 
-            <h3 className="text-2xl font-display uppercase tracking-tight text-white mb-2">
-              EXECUTE ACQUISITION CONTRACT
+            <h3 className="text-2xl font-heading uppercase tracking-wider text-white mb-2">
+              Execute Acquisition Contract
             </h3>
 
-            <p className="text-xs font-sans opacity-80 mb-6">
-              Executing this action commits an atomic multi-table transaction within the Monolith DBMS layer.
+            <p className="text-xs text-white/70 mb-6 font-geist">
+              Executing this action commits an atomic multi-table transaction within the Horizon Estates DBMS layer.
             </p>
 
-            <div className="space-y-2 p-4 bg-black/60 border border-white/10 text-xs mb-6">
+            <div className="space-y-2 p-4 bg-white/5 border border-white/10 rounded-xl text-xs mb-6">
               <div className="flex justify-between">
-                <span className="opacity-60">TARGET RESIDENCE:</span>
+                <span className="text-white/50">TARGET RESIDENCE:</span>
                 <strong className="text-white">{confirmAcceptOffer.propertyName}</strong>
               </div>
               <div className="flex justify-between">
-                <span className="opacity-60">ACQUIRING PATRON:</span>
+                <span className="text-white/50">ACQUIRING PATRON:</span>
                 <strong className="text-white">{confirmAcceptOffer.customerName}</strong>
               </div>
               <div className="flex justify-between">
-                <span className="opacity-60">CONTRACT VALUATION:</span>
+                <span className="text-white/50">CONTRACT VALUATION:</span>
                 <strong className="text-emerald-400 text-sm font-bold">
                   ${confirmAcceptOffer.offerAmount.toLocaleString()}
                 </strong>
               </div>
             </div>
 
-            <div className="p-3 bg-amber-950/40 border border-amber-600/30 text-[10px] space-y-1 mb-6 text-amber-200">
-              <span className="font-bold block uppercase tracking-wider">DBMS Atomic Execution Cascade:</span>
+            <div className="p-3.5 bg-amber-950/40 border border-amber-600/30 rounded-xl text-[10px] space-y-1 mb-6 text-amber-200 font-geist">
+              <span className="font-bold block uppercase tracking-wider text-amber-400 font-mono">DBMS Atomic Execution Cascade:</span>
               <ul className="list-disc list-inside space-y-0.5 opacity-90">
                 <li>Offer #{confirmAcceptOffer.offerId} set to ACCEPTED</li>
-                <li>All other competing pending offers set to REJECTED</li>
-                <li>Residence listing status updated to SOLD</li>
+                <li>All competing pending offers for this property set to REJECTED</li>
+                <li>Residence listing status updated to SOLD in repository</li>
                 <li>Legal notary transaction generated and deed created in Custodial Registry</li>
               </ul>
             </div>
@@ -1084,7 +1089,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setConfirmAcceptOffer(null)}
-                className="py-3 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors"
+                className="py-2.5 border border-white/20 hover:border-white text-[10px] uppercase tracking-widest transition-colors rounded-full cursor-pointer text-white/70 hover:text-white"
               >
                 ABORT
               </button>
@@ -1092,7 +1097,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               <button
                 type="button"
                 onClick={handleExecuteAtomicAcceptance}
-                className="py-3 bg-emerald-500 text-black font-bold text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-emerald-400 transition-colors"
+                className="py-2.5 bg-emerald-400 text-black font-medium text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-emerald-300 transition-colors rounded-full cursor-pointer shadow-lg"
               >
                 <span>COMMIT TRANSACTION</span>
                 <CheckCircle className="w-3.5 h-3.5" />
