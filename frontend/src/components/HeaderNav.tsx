@@ -45,8 +45,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           className="group flex flex-col text-left font-sans tracking-widest-editorial text-xs md:text-[11px] uppercase transition-opacity duration-300"
           style={{ color: currentProperty.textTone }}
         >
-          <span className="font-bold tracking-super-wide text-[12px] md:text-[13px]">MONOLITH</span>
-          <span className="text-[9px] md:text-[8px] tracking-[0.4em] opacity-60">SPATIAL ARCHIVES / 01</span>
+          <span className="font-bold tracking-super-wide text-[12px] md:text-[13px]">HORIZON</span>
+          <span className="text-[9px] md:text-[8px] tracking-[0.4em] opacity-60">ESTATES // SPATIAL ARCHIVES</span>
         </button>
       </div>
 

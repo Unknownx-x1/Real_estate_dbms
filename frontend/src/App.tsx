@@ -96,20 +96,14 @@ export const App: React.FC = () => {
   // --- RENDER FALKORDB GRAPH EXPLORER ---
   if (currentView === 'graph') {
     return (
-      <div className="relative">
-        <div className="fixed top-4 left-6 z-50">
-          <button
-            onClick={() => {
-              setCurrentView('landing');
-              window.scrollTo({ top: 0, behavior: 'instant' });
-            }}
-            className="px-4 py-2 bg-slate-900/90 hover:bg-slate-800 text-slate-200 text-xs font-mono uppercase tracking-wider rounded-full border border-slate-700 shadow-xl backdrop-blur transition flex items-center gap-2 cursor-pointer"
-          >
-            ← Return to Horizon Estates
-          </button>
-        </div>
-        <GraphExplorer />
-      </div>
+      <GraphExplorer
+        onBack={() => {
+          setCurrentView('landing');
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+        onNavigatePatron={openPatronPortal}
+        onNavigateAgent={openAgentPortal}
+      />
     );
   }
 
