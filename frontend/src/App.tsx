@@ -7,10 +7,11 @@ import { SignInModal } from './components/SignInModal';
 import { PatronDashboard } from './components/dashboards/PatronDashboard';
 import { AgentDashboard } from './components/dashboards/AgentDashboard';
 import { SqlQueryWindow } from './components/SqlQueryWindow';
+import { GraphExplorer } from './components/GraphExplorer';
 import type { UserSession } from './services/api';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'landing' | 'patron' | 'agent' | 'sql'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'patron' | 'agent' | 'sql' | 'graph'>('landing');
   const [session, setSession] = useState<UserSession | null>(() => {
     try {
       const saved = localStorage.getItem('horizon_user_session');
@@ -70,6 +71,11 @@ export const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  const openGraphExplorer = () => {
+    setCurrentView('graph');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   const handleLoginSuccess = (newSession: UserSession) => {
     setSession(newSession);
     setIsSignInOpen(false);
@@ -86,6 +92,26 @@ export const App: React.FC = () => {
     setCurrentView('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // --- RENDER FALKORDB GRAPH EXPLORER ---
+  if (currentView === 'graph') {
+    return (
+      <div className="relative">
+        <div className="fixed top-4 left-6 z-50">
+          <button
+            onClick={() => {
+              setCurrentView('landing');
+              window.scrollTo({ top: 0, behavior: 'instant' });
+            }}
+            className="px-4 py-2 bg-slate-900/90 hover:bg-slate-800 text-slate-200 text-xs font-mono uppercase tracking-wider rounded-full border border-slate-700 shadow-xl backdrop-blur transition flex items-center gap-2 cursor-pointer"
+          >
+            ← Return to Horizon Estates
+          </button>
+        </div>
+        <GraphExplorer />
+      </div>
+    );
+  }
 
   // --- RENDER SQL QUERY WINDOW ---
   if (currentView === 'sql') {
@@ -164,6 +190,7 @@ export const App: React.FC = () => {
           if (view === 'patron') openPatronPortal();
           else if (view === 'agent') openAgentPortal();
           else if (view === 'sql') openSqlConsole();
+          else if (view === 'graph') openGraphExplorer();
         }}
       />
 

@@ -30,6 +30,22 @@ app.use((req, res, next) => {
     next();
 });
 
+// Root Status
+app.get('/', (req, res) => {
+    res.status(200).json({
+        status: 'UP',
+        service: 'Real Estate Management API',
+        message: 'Backend server is running & connected to PostgreSQL',
+        endpoints: {
+            health: '/api/health',
+            listings: '/api/listings',
+            schema: '/api/db/schema',
+            query: '/api/db/query',
+            graph: '/api/graph/health'
+        }
+    });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.status(200).json({

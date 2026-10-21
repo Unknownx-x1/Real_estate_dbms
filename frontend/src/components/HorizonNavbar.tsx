@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Terminal, User, Briefcase, LogOut } from 'lucide-react';
+import { ArrowRight, Terminal, User, Briefcase, LogOut, Network } from 'lucide-react';
 import { Logo } from './HorizonLogo';
 import type { UserSession } from '../services/api';
 
@@ -8,7 +8,7 @@ interface NavbarProps {
   onOpenSignIn?: () => void;
   onSignOut?: () => void;
   onOpenInquire?: () => void;
-  onOpenPortal?: (view: 'patron' | 'agent' | 'sql') => void;
+  onOpenPortal?: (view: 'patron' | 'agent' | 'sql' | 'graph') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -133,6 +133,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <Terminal className="w-3 h-3 text-emerald-400" />
                 <span>SQL</span>
+              </button>
+
+              <span>•</span>
+
+              <button
+                onClick={() => onOpenPortal('graph')}
+                className="hover:text-amber-400 flex items-center gap-1 px-2 py-0.5 rounded border border-amber-500/30 text-amber-300 hover:bg-amber-950/30 transition-all cursor-pointer"
+                title="Open FalkorDB Graph Engine & Visualizer"
+              >
+                <Network className="w-3 h-3 text-amber-400" />
+                <span>Graph</span>
               </button>
             </div>
           )}
@@ -313,6 +324,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="hover:text-emerald-400 flex items-center gap-1"
               >
                 <Terminal className="w-3 h-3 text-emerald-400" /> SQL
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  onOpenPortal('graph');
+                }}
+                className="hover:text-amber-400 flex items-center gap-1"
+              >
+                <Network className="w-3 h-3 text-amber-400" /> Graph
               </button>
             </div>
           )}

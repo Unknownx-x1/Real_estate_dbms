@@ -17,6 +17,7 @@ const transactionRoutes = require('./transactionRoutes');
 const paymentRoutes = require('./paymentRoutes');
 const reviewRoutes = require('./reviewRoutes');
 const queryRoutes = require('./queryRoutes');
+const graphRoutes = require('./graphRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/property-types', propertyTypeRoutes);
@@ -28,10 +29,12 @@ router.use('/transactions', transactionRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/query', queryRoutes);
+router.use('/graph', graphRoutes);
 
 // Seed & Database Rebuild Endpoints (For easy cloud deployment initialization & demo reset)
 const { seedDatabase } = require('../../scripts/seedDb');
 const { initDatabase } = require('../../scripts/initDb');
+const { seedGraphFromPostgres } = require('../../scripts/seedGraphDb');
 
 router.post('/seed', async (req, res, next) => {
     try {
@@ -45,6 +48,15 @@ router.post('/seed', async (req, res, next) => {
 router.post('/db-init', async (req, res, next) => {
     try {
         const result = await initDatabase();
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/graph-seed', async (req, res, next) => {
+    try {
+        const result = await seedGraphFromPostgres();
         res.status(200).json(result);
     } catch (err) {
         next(err);
