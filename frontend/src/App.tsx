@@ -214,6 +214,7 @@ export const App: React.FC = () => {
           if (view === 'patron') openPatronPortal();
           else if (view === 'agent') openAgentPortal();
           else if (view === 'sql') openSqlConsole();
+          else if (view === 'graph') openGraphExplorer();
         }}
       />
 

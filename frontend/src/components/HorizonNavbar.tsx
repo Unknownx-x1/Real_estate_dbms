@@ -77,72 +77,66 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <Logo className="w-7 h-7 md:w-9 md:h-9 text-white relative z-50 transition-transform group-hover:scale-105" />
           <div className="flex flex-col text-left">
-            <span className="font-heading text-base md:text-lg tracking-widest text-white uppercase leading-none">
+            <span className="font-heading text-base md:text-lg tracking-[0.25em] text-[#f7f6f2] uppercase leading-none">
               Horizon
             </span>
-            <span className="text-[8px] font-mono tracking-super-wide text-rose-200/80 uppercase">
-              Estates MMXXVI
+            <span className="text-[8px] font-geist tracking-[0.35em] text-[#c5a880] uppercase mt-0.5">
+              Estates · Malibu
             </span>
           </div>
         </button>
 
         {/* Center - Nav Links (hidden mobile, visible lg+) */}
-        <div className="hidden lg:flex items-center gap-8 text-white/85 text-xs uppercase tracking-wider font-geist font-light">
+        <div className="hidden lg:flex items-center gap-9 text-[#dedad2] text-xs uppercase tracking-[0.22em] font-geist font-light">
           {navLinks.map((item) => (
             <button
               key={item.label}
               onClick={() => handleLinkClick(item.target)}
-              className="hover:text-white transition-colors cursor-pointer py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white hover:after:w-full after:transition-all after:duration-300"
+              className="hover:text-[#c5a880] transition-colors cursor-pointer py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#c5a880] hover:after:w-full after:transition-all after:duration-300"
             >
               {item.label}
             </button>
           ))}
         </div>
 
-        {/* Right - Authentication, DBMS quick links, & CTA (hidden mobile, visible md+) */}
+        {/* Right - Authentication, DBMS Suite, & CTA (hidden mobile, visible md+) */}
         <div className="hidden md:flex items-center gap-4">
-          {/* Quick DBMS Portal shortcuts */}
+          {/* Curated DBMS & Graph Engine Suite */}
           {onOpenPortal && (
-            <div className="flex items-center gap-2.5 text-[10px] font-mono tracking-widest text-white/60 uppercase">
+            <div className="flex items-center gap-1 p-1 rounded-full bg-[#121110]/80 border border-[#c5a880]/25 backdrop-blur-md shadow-inner">
               <button
                 onClick={() => onOpenPortal('patron')}
-                className="hover:text-white flex items-center gap-1 transition-opacity opacity-75 hover:opacity-100 cursor-pointer"
+                className="px-3 py-1 rounded-full hover:bg-white/10 text-[10px] font-geist tracking-[0.14em] text-[#dedad2] hover:text-white uppercase transition-all"
                 title="Open Patron Customer Portal"
               >
-                <User className="w-3 h-3 text-rose-300" />
-                <span>Patron</span>
+                Patron
               </button>
-
-              <span>•</span>
 
               <button
                 onClick={() => onOpenPortal('agent')}
-                className="hover:text-white flex items-center gap-1 transition-opacity opacity-75 hover:opacity-100 cursor-pointer"
+                className="px-3 py-1 rounded-full hover:bg-white/10 text-[10px] font-geist tracking-[0.14em] text-[#dedad2] hover:text-white uppercase transition-all"
                 title="Open Atelier Broker Desk"
               >
-                <Briefcase className="w-3 h-3 text-rose-300" />
-                <span>Atelier</span>
+                Atelier
               </button>
 
-              <span>•</span>
+              <span className="w-[1px] h-3 bg-[#c5a880]/30 mx-0.5" />
 
               <button
                 onClick={() => onOpenPortal('sql')}
-                className="hover:text-emerald-400 flex items-center gap-1 px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-300 hover:bg-emerald-950/30 transition-all cursor-pointer"
+                className="px-2.5 py-1 rounded-full hover:bg-[#c5a880]/15 text-[10px] font-geist tracking-[0.14em] text-[#e4d7c5] hover:text-white uppercase transition-all flex items-center gap-1"
                 title="Open Interactive SQL Query Console"
               >
-                <Terminal className="w-3 h-3 text-emerald-400" />
+                <Terminal className="w-3 h-3 text-[#c5a880]" />
                 <span>SQL</span>
               </button>
 
-              <span>•</span>
-
               <button
                 onClick={() => onOpenPortal('graph')}
-                className="hover:text-amber-400 flex items-center gap-1 px-2 py-0.5 rounded border border-amber-500/30 text-amber-300 hover:bg-amber-950/30 transition-all cursor-pointer"
+                className="px-2.5 py-1 rounded-full bg-[#c5a880]/20 border border-[#c5a880]/40 hover:bg-[#c5a880]/30 text-[10px] font-geist tracking-[0.14em] text-[#f7f6f2] uppercase transition-all flex items-center gap-1 shadow-sm font-medium"
                 title="Open FalkorDB Graph Engine & Visualizer"
               >
-                <Network className="w-3 h-3 text-amber-400" />
+                <Network className="w-3 h-3 text-[#c5a880]" />
                 <span>Graph</span>
               </button>
             </div>
@@ -150,17 +144,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* User Session Pill or Sign In Trigger */}
           {session ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-white/15">
+            <div className="flex items-center gap-2 pl-2 border-l border-[#c5a880]/20">
               <button
                 onClick={() => {
                   if (session.role === 'CUSTOMER' && onOpenPortal) onOpenPortal('patron');
                   else if (session.role === 'AGENT' && onOpenPortal) onOpenPortal('agent');
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#181716]/80 hover:bg-[#22201d] border border-[#c5a880]/30 text-[#f7f6f2] transition-all cursor-pointer"
                 title="View Active Profile"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] font-mono uppercase tracking-wider max-w-[120px] truncate">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#c5a880]" />
+                <span className="text-[10px] font-geist uppercase tracking-widest max-w-[120px] truncate">
                   {session.name.split(' ')[0]} ({session.role === 'CUSTOMER' ? 'PATRON' : 'ATELIER'})
                 </span>
               </button>
@@ -168,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {onSignOut && (
                 <button
                   onClick={onSignOut}
-                  className="p-1.5 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-colors cursor-pointer"
                   title="Sign Out"
                 >
                   <LogOut className="w-3.5 h-3.5" />
@@ -179,23 +173,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             onOpenSignIn && (
               <button
                 onClick={onOpenSignIn}
-                className="px-3.5 py-1.5 rounded-full border border-white/25 hover:border-white text-[10px] font-mono uppercase tracking-widest text-white/80 hover:text-white transition-all cursor-pointer"
+                className="px-4 py-1.5 rounded-full border border-[#c5a880]/30 hover:border-[#c5a880] text-[10px] font-geist uppercase tracking-[0.25em] text-[#e4d7c5] hover:text-white transition-all cursor-pointer bg-[#141312]/40"
               >
                 Sign In
               </button>
             )
           )}
 
-          {/* Primary CTA button: Acquire Estate / Submit Offer */}
+          {/* Primary CTA button: Inquire Privately */}
           <button
             onClick={onOpenInquire}
-            className="group flex items-center gap-2 bg-white text-black rounded-full pl-4 pr-1.5 py-1.5 hover:bg-gray-200 transition-all shadow-lg cursor-pointer"
+            className="group flex items-center gap-2.5 bg-[#f7f6f2] hover:bg-[#eadecc] text-[#0a0a0b] rounded-full pl-5 pr-2 py-2 transition-all duration-300 shadow-xl cursor-pointer"
           >
-            <span className="text-xs font-geist font-medium tracking-wider uppercase">
-              Submit Offer
+            <span className="text-xs font-geist font-medium tracking-[0.16em] uppercase">
+              Inquire Privately
             </span>
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-black/10 group-hover:bg-black/15 transition-colors">
-              <ArrowRight className="w-3.5 h-3.5 text-black" />
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#c5a880]/20 group-hover:bg-[#c5a880]/30 transition-colors">
+              <ArrowRight className="w-3.5 h-3.5 text-[#0a0a0b]" />
             </span>
           </button>
         </div>

@@ -114,42 +114,41 @@ export const HorizonInquireModal: React.FC<InquireModalProps> = ({
 
         {resultOfferId ? (
           <div className="py-6 text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <div className="w-14 h-14 mx-auto rounded-full bg-[#c5a880]/15 border border-[#c5a880]/40 flex items-center justify-center text-[#c5a880]">
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/50 border border-emerald-500/30 text-[10px] font-mono uppercase tracking-widest text-emerald-300">
-              <Sparkles className="w-3 h-3" />
-              <span>DBMS RECORD CREATED // OFFER #{resultOfferId}</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#181716] border border-[#c5a880]/30 text-[10px] font-geist uppercase tracking-[0.22em] text-[#e4d7c5]">
+              <Sparkles className="w-3 h-3 text-[#c5a880]" />
+              <span>Acquisition Tender Registered · Offer #{resultOfferId}</span>
             </div>
 
-            <h3 className="font-heading text-2xl md:text-3xl uppercase tracking-wider text-white">
-              Acquisition Tender Logged
+            <h3 className="font-heading text-2xl md:text-3xl uppercase tracking-wider text-[#f7f6f2]">
+              Tender Successfully Logged
             </h3>
 
-            <p className="text-white/70 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-              Tender registered in PostgreSQL <code className="text-rose-200">OFFER</code> table for{' '}
-              <strong className="text-white">{currentListing?.propertyName || selectedProperty}</strong> at{' '}
-              <strong className="text-white">${Number(offerAmount).toLocaleString()} USD</strong> under Patron accreditation{' '}
-              <span className="text-rose-200">{patronName}</span>. Status is <span className="text-amber-300 font-mono">PENDING</span>.
+            <p className="text-[#a8a29e] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+              Formal tender logged for <strong className="text-[#f7f6f2]">{currentListing?.propertyName || selectedProperty}</strong> at{' '}
+              <strong className="text-[#c5a880]">${Number(offerAmount).toLocaleString()} USD</strong> under accredited patron{' '}
+              <span className="text-[#e4d7c5]">{patronName}</span>. Transaction status is <span className="text-amber-300 font-medium">Pending Review</span>.
             </p>
 
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-left text-xs font-mono space-y-1.5 text-white/80">
+            <div className="p-4 rounded-xl bg-[#141312] border border-[#c5a880]/20 text-left text-xs font-geist space-y-2 text-[#dedad2]">
               <div className="flex justify-between">
-                <span className="text-white/50">OFFER ID:</span>
-                <span className="text-white font-bold">OFFER-00{resultOfferId}</span>
+                <span className="text-[#8c867e] uppercase tracking-wider">Tender ID:</span>
+                <span className="text-[#f7f6f2] font-medium">OFFER-00{resultOfferId}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/50">LISTING:</span>
-                <span className="text-white">{currentListing?.propertyName || 'Estate'}</span>
+                <span className="text-[#8c867e] uppercase tracking-wider">Estate:</span>
+                <span className="text-[#f7f6f2]">{currentListing?.propertyName || 'Estate'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/50">PROPOSED AMOUNT:</span>
-                <span className="text-emerald-400 font-bold">${Number(offerAmount).toLocaleString()} USD</span>
+                <span className="text-[#8c867e] uppercase tracking-wider">Proposed Amount:</span>
+                <span className="text-[#c5a880] font-semibold">${Number(offerAmount).toLocaleString()} USD</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/50">ESCROW STATUS:</span>
-                <span className="text-amber-400">PENDING BROKER REVIEW</span>
+                <span className="text-[#8c867e] uppercase tracking-wider">Status:</span>
+                <span className="text-amber-400 font-medium">PENDING ATELIER REVIEW</span>
               </div>
             </div>
 
@@ -160,7 +159,7 @@ export const HorizonInquireModal: React.FC<InquireModalProps> = ({
                     onClose();
                     onOpenPortal('patron');
                   }}
-                  className="w-full py-2.5 px-4 rounded-full bg-white text-black font-medium text-xs tracking-wider uppercase hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                  className="w-full py-3 px-4 rounded-full bg-[#f7f6f2] hover:bg-[#eadecc] text-[#0a0a0b] font-geist font-medium text-xs tracking-wider uppercase transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                 >
                   <User className="w-3.5 h-3.5" />
                   <span>View in Patron Dossier</span>
@@ -173,9 +172,9 @@ export const HorizonInquireModal: React.FC<InquireModalProps> = ({
                     onClose();
                     onOpenPortal('agent');
                   }}
-                  className="w-full py-2.5 px-4 rounded-full border border-white/20 text-white font-medium text-xs tracking-wider uppercase hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-full border border-[#c5a880]/30 hover:border-[#c5a880] text-[#e4d7c5] font-geist font-medium text-xs tracking-wider uppercase hover:bg-white/5 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Briefcase className="w-3.5 h-3.5" />
+                  <Briefcase className="w-3.5 h-3.5 text-[#c5a880]" />
                   <span>Review on Atelier Desk</span>
                 </button>
               )}
@@ -187,7 +186,7 @@ export const HorizonInquireModal: React.FC<InquireModalProps> = ({
                   setResultOfferId(null);
                   onClose();
                 }}
-                className="text-xs text-white/50 hover:text-white uppercase tracking-wider font-mono cursor-pointer"
+                className="text-xs text-[#8c867e] hover:text-[#f7f6f2] uppercase tracking-[0.2em] font-geist cursor-pointer"
               >
                 Return to Portfolio
               </button>
@@ -196,15 +195,15 @@ export const HorizonInquireModal: React.FC<InquireModalProps> = ({
         ) : (
           <div>
             <div className="mb-6">
-              <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-emerald-400 uppercase mb-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>CONFIDENTIAL ACQUISITION DESK // BCNF POSTGRESQL</span>
+              <div className="flex items-center gap-2 text-[10px] font-geist tracking-[0.25em] text-[#c5a880] uppercase mb-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#c5a880]" />
+                <span>Confidential Acquisition Desk · Custodial Registry</span>
               </div>
-              <h2 className="font-heading text-2xl md:text-3xl uppercase tracking-wider text-white">
+              <h2 className="font-heading text-2xl md:text-3xl uppercase tracking-wider text-[#f7f6f2]">
                 Submit Acquisition Tender
               </h2>
-              <p className="text-white/60 text-xs md:text-sm mt-1">
-                Submit a binding acquisition offer directly into the sovereign real estate database.
+              <p className="text-[#a8a29e] text-xs md:text-sm mt-1 font-light">
+                Submit a binding acquisition offer directly into our sovereign real estate database.
               </p>
             </div>
 

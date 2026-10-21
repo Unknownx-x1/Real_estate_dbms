@@ -107,23 +107,24 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquire }) => {
         </div>
 
         {/* Bottom Property Listing Presentation Block */}
+        {/* Bottom Property Listing Presentation Block */}
         <div className="absolute bottom-0 left-0 right-0 pb-10 sm:pb-12 md:pb-16 px-5 sm:px-6 md:px-12 text-center z-20">
           {/* Top Pill / Listing Identifier */}
           <div
-            className={`inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 mb-3 sm:mb-4 transition-all duration-[1000ms] ease-out ${
+            className={`inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#121110]/80 backdrop-blur-md border border-[#c5a880]/30 mb-3.5 sm:mb-4 transition-all duration-[1000ms] ease-out shadow-lg ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
             style={{ transitionDelay: '450ms' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.22em] text-white/90">
-              FEATURED ESTATE // MALIBU BLUFFS • FREEHOLD DEED
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c5a880]" />
+            <span className="text-[10px] md:text-xs font-geist uppercase tracking-[0.28em] text-[#e4d7c5]">
+              Private Sovereign Residence · Malibu Bluffs
             </span>
           </div>
 
           {/* Cinematic Estate Title */}
           <h1
-            className={`font-heading text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-normal tracking-[0.18em] uppercase leading-[1.1] transition-all duration-[1000ms] ease-out drop-shadow-lg ${
+            className={`font-heading text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-normal tracking-[0.2em] uppercase leading-[1.05] transition-all duration-[1000ms] ease-out text-[#f7f6f2] drop-shadow-2xl ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
             style={{ transitionDelay: '600ms' }}
@@ -131,67 +132,67 @@ export const Hero: React.FC<HeroProps> = ({ onOpenInquire }) => {
             The Horizon Villa
           </h1>
 
-          {/* Clean Price Line (Cormorant Garamond / Sans) */}
+          {/* Clean Price Line (Cormorant Garamond Editorial) */}
           <div
-            className={`mt-2 text-white/90 text-sm sm:text-base md:text-lg font-mono tracking-[0.25em] uppercase font-light transition-all duration-[1000ms] ease-out ${
+            className={`mt-2.5 text-[#e4d7c5] font-cormorant text-2xl sm:text-3xl md:text-4xl tracking-widest font-light transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
             style={{ transitionDelay: '700ms' }}
           >
-            $18,500,000 USD
+            $18,500,000 <span className="text-xs sm:text-sm font-geist text-[#a8a29e] tracking-widest uppercase">USD</span>
           </div>
 
           {/* Uncluttered Clean Specs Line */}
           <div
-            className={`mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2.5 sm:gap-5 text-[11px] sm:text-xs md:text-sm font-geist font-light text-white/90 uppercase tracking-[0.2em] transition-all duration-[1000ms] ease-out ${
+            className={`mt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs md:text-sm font-geist font-light text-[#dedad2] uppercase tracking-[0.22em] transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
             style={{ transitionDelay: '800ms' }}
           >
-            <span><strong className="font-medium text-white">6</strong> Beds</span>
-            <span className="opacity-30">|</span>
-            <span><strong className="font-medium text-white">8</strong> Baths</span>
-            <span className="opacity-30">|</span>
-            <span><strong className="font-medium text-white">9,400</strong> Sq.Ft</span>
-            <span className="opacity-30">|</span>
-            <span>Private Beach</span>
-            <span className="opacity-30">|</span>
-            <span>Infinity Pool</span>
+            <span><strong className="font-medium text-[#f7f6f2]">6</strong> Bedrooms</span>
+            <span className="text-[#c5a880]/40">·</span>
+            <span><strong className="font-medium text-[#f7f6f2]">8</strong> En-Suites</span>
+            <span className="text-[#c5a880]/40">·</span>
+            <span><strong className="font-medium text-[#f7f6f2]">9,400</strong> Sq.Ft Living</span>
+            <span className="text-[#c5a880]/40">·</span>
+            <span>Private Pacific Cove</span>
+            <span className="text-[#c5a880]/40">·</span>
+            <span>Cantilevered Infinity Horizon</span>
           </div>
 
           {/* Architectural Description */}
           <p
-            className={`mt-3 sm:mt-4 text-white/75 font-geist font-light text-xs sm:text-sm md:text-base max-w-xs sm:max-w-xl mx-auto leading-relaxed tracking-wide transition-all duration-[1000ms] ease-out ${
+            className={`mt-4 text-[#bfbab0] font-geist font-light text-xs sm:text-sm md:text-base max-w-xs sm:max-w-xl mx-auto leading-relaxed tracking-wide transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             }`}
             style={{ transitionDelay: '900ms' }}
           >
-            An iconic contemporary coastal compound sculptured into the coastline, featuring 270° panoramic Pacific ocean views, cantilevered glass pavilions, and verified sovereign freehold title.
+            A monumental coastal sanctuary sculpted into the cliffs of Malibu. Poured stone volumes and cantilevered glass pavilions frame 270° uninterrupted Pacific horizons.
           </p>
 
           {/* Action CTAs */}
           <div
-            className={`mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-3 transition-all duration-[1000ms] ease-out ${
+            className={`mt-6 flex flex-wrap items-center justify-center gap-4 transition-all duration-[1000ms] ease-out ${
               visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
             style={{ transitionDelay: '1000ms' }}
           >
             <button
               onClick={onOpenInquire}
-              className="group flex items-center gap-2 bg-white text-gray-900 rounded-full pl-5 pr-2 py-2 hover:bg-gray-100 transition-all shadow-xl cursor-pointer text-xs md:text-sm font-geist font-medium tracking-wider uppercase"
+              className="group flex items-center gap-3 bg-[#f7f6f2] hover:bg-[#eadecc] text-[#0a0a0b] rounded-full px-6 py-3 transition-all duration-300 shadow-xl cursor-pointer text-xs md:text-sm font-geist font-medium tracking-[0.18em] uppercase"
             >
-              <span>Submit Acquisition Offer</span>
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-rose-200/70 group-hover:bg-rose-300 transition-colors">
-                <ArrowRight className="w-3.5 h-3.5 text-gray-800" />
+              <span>Submit Acquisition Tender</span>
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#c5a880]/20 group-hover:bg-[#c5a880]/30 transition-colors">
+                <ArrowRight className="w-3.5 h-3.5 text-[#0a0a0b]" />
               </span>
             </button>
 
             <button
               onClick={scrollToEstates}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-full border border-white/30 text-white/90 hover:text-white hover:border-white text-xs md:text-sm font-geist font-medium tracking-wider uppercase transition-colors cursor-pointer backdrop-blur-sm"
+              className="flex items-center gap-2 px-6 py-3 rounded-full border border-[#c5a880]/40 hover:border-[#c5a880] text-[#e4d7c5] hover:text-[#f7f6f2] text-xs md:text-sm font-geist font-medium tracking-[0.18em] uppercase transition-all duration-300 cursor-pointer backdrop-blur-md bg-[#0c0b0a]/40"
             >
-              <span>Explore Portfolio</span>
-              <ChevronDown className="w-3.5 h-3.5" />
+              <span>Explore Collection</span>
+              <ChevronDown className="w-3.5 h-3.5 text-[#c5a880]" />
             </button>
           </div>
         </div>
