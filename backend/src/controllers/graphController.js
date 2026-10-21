@@ -45,9 +45,9 @@ async function getGraphNetwork(req, res, next) {
         // Parse FalkorDB result
         if (queryResult.data && Array.isArray(queryResult.data)) {
             for (const row of queryResult.data) {
-                const sourceNode = row[0];
-                const relationship = row[1];
-                const targetNode = row[2];
+                const sourceNode = row.n ?? row[0];
+                const relationship = row.r ?? row[1];
+                const targetNode = row.m ?? row[2];
 
                 if (sourceNode) {
                     const id = String(sourceNode.id ?? (sourceNode.properties && (sourceNode.properties.customerId || sourceNode.properties.propertyId || sourceNode.properties.listingId || sourceNode.properties.agentId)));
@@ -129,12 +129,12 @@ async function getRecommendations(req, res, next) {
 
         if (queryResult.data && queryResult.data.length > 0) {
             recommendations = queryResult.data.map(row => ({
-                propertyId: row[0],
-                propertyName: row[1],
-                price: row[2],
-                areaSqFt: row[3],
-                propertyType: row[4],
-                affinityScore: Number(row[5] || 1)
+                propertyId: row.propertyId ?? row[0],
+                propertyName: row.description ?? row[1],
+                price: row.price ?? row[2],
+                areaSqFt: row.areaSqFt ?? row[3],
+                propertyType: row.typeName ?? row[4],
+                affinityScore: Number(row.affinityScore ?? row[5] ?? 1)
             }));
         } else {
             // Fallback: If no co-offer history, return top properties linked to highest-rated listings
@@ -153,12 +153,12 @@ async function getRecommendations(req, res, next) {
             const fallbackResult = await queryGraph(fallbackCypher);
             if (fallbackResult.data) {
                 recommendations = fallbackResult.data.map(row => ({
-                    propertyId: row[0],
-                    propertyName: row[1],
-                    price: row[2],
-                    areaSqFt: row[3],
-                    propertyType: row[4],
-                    affinityScore: Number(Number(row[5] || 5).toFixed(1))
+                    propertyId: row.propertyId ?? row[0],
+                    propertyName: row.description ?? row[1],
+                    price: row.price ?? row[2],
+                    areaSqFt: row.areaSqFt ?? row[3],
+                    propertyType: row.typeName ?? row[4],
+                    affinityScore: Number(Number(row.avgRating ?? row[5] ?? 5).toFixed(1))
                 }));
             }
         }

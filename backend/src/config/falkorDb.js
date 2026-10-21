@@ -99,8 +99,9 @@ async function checkHealth() {
         let nodeCount = 0;
         let edgeCount = 0;
         if (countRes.data && countRes.data.length > 0) {
-            nodeCount = Number(countRes.data[0][0] || 0);
-            edgeCount = Number(countRes.data[0][1] || 0);
+            const first = countRes.data[0];
+            nodeCount = Number(first.nodeCount ?? first[0] ?? 0);
+            edgeCount = Number(first.edgeCount ?? first[1] ?? 0);
         }
 
         return {
