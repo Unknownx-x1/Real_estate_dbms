@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-obsidian: #080809;
+    --color-charcoal: #121214;
+    --color-stone: #1a1a1d;
+    --color-champagne: #c5a880;
+    --color-champagne-light: #e4d7c5;
+    --color-champagne-dark: #8c7352;
+    --color-alabaster: #f7f6f2;
+    --color-cashmere: #a8a29e;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Geist', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  background-color: #080809;
+  color: #f7f6f2;
+}
+
+::selection {
+  background-color: #c5a880;
+  color: #080809;
+}
+
+/* Luxury Typography Utilities */
+.font-heading {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.14em;
+}
+
+.font-cinematic {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.18em;
+}
+
+.font-cormorant {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.font-geist {
+  font-family: 'Geist', sans-serif;
+}
+
+/* Bespoke Luxury Glass & Glow */
+.glass-champagne {
+  background: rgba(18, 18, 20, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(197, 168, 128, 0.2);
+}
+
+.glass-champagne:hover {
+  border-color: rgba(197, 168, 128, 0.45);
+}
+
+.glow-champagne {
+  box-shadow: 0 0 50px -10px rgba(197, 168, 128, 0.2);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #ede5d8 40%, #c5a880 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080809;
+}
+::-webkit-scrollbar-thumb {
+  background: #252422;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5a880;
+}

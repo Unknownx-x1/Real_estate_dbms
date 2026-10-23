@@ -1,0 +1,260 @@
+{
+  "info": {
+    "name": "Real Estate Property Listing & Management API",
+    "description": "Postman collection covering all 13 relations, CRUD, and multi-table atomic transactions for DBMS demonstration.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "authToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"David\",\n  \"middleName\": \"Lee\",\n  \"lastName\": \"Brown\",\n  \"email\": \"david.brown@example.com\",\n  \"phoneNo\": \"+1-555-0199\",\n  \"dateOfBirth\": \"1992-05-14\",\n  \"password\": \"password123\",\n  \"role\": \"CUSTOMER\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Agent",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"George\",\n  \"lastName\": \"King\",\n  \"email\": \"george.realtor@example.com\",\n  \"phoneNo\": \"+1-555-0300\",\n  \"dateOfBirth\": \"1986-09-22\",\n  \"password\": \"password123\",\n  \"role\": \"AGENT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice.smith@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Current User (Me)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Property Types",
+      "item": [
+        {
+          "name": "Get All Property Types",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/property-types"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "Get Properties",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/properties?limit=10"
+          }
+        },
+        {
+          "name": "Get Property By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/properties/1"
+          }
+        },
+        {
+          "name": "Create Property",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/properties",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"areaSqFt\": 1800.00,\n  \"price\": 550000.00,\n  \"description\": \"Charming townhome with private garden.\",\n  \"propertyTypeId\": 2,\n  \"ownershipShare\": 100.00\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listings",
+      "item": [
+        {
+          "name": "Browse Active Listings (View: active_listings_full)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/listings?status=ACTIVE&sortBy=ListPrice&sortOrder=ASC"
+          }
+        },
+        {
+          "name": "Get Listing By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/listings/1"
+          }
+        },
+        {
+          "name": "Create Listing (Agent)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/listings",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": 1,\n  \"listPrice\": 429000.00,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "item": [
+        {
+          "name": "Create Offer (Customer)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/offers",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listingId\": 1,\n  \"offerAmount\": 418000.00\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Offers By Listing",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/offers?listingId=1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Accept Offer & Create Transaction (Atomic Workflow)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/transactions",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"offerId\": 1,\n  \"transactionType\": \"SALE\",\n  \"salePrice\": 410000.00,\n  \"registrationNo\": \"REG-2024-TEST-0042\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Transaction By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/transactions/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/payments",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transactionId\": 1,\n  \"amount\": 50000.00,\n  \"paymentMode\": \"WIRE_TRANSFER\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Payments By Transaction",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/payments?transactionId=1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get Reviews for Listing",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/listings/1/reviews"
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/listings/1/reviews",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Amazing property and fast closing!\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
