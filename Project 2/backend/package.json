@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "db:init": "node scripts/initDb.js",
     "db:seed": "node scripts/seedDb.js",
+    "db:seed-graph": "node scripts/seedGraphDb.js",
     "graph:seed": "node scripts/seedGraphDb.js"
   },
   "keywords": [
