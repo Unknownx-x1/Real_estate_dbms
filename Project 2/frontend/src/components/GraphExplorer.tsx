@@ -1083,33 +1083,73 @@ export const GraphExplorer: React.FC<GraphExplorerProps> = ({
 
                 {cypherResult.error ? (
                   <div className="p-4 bg-red-950/20 border border-red-500/30 rounded-lg text-xs font-mono text-red-300">
-                    {cypherResult.error.message}
+                    {typeof cypherResult.error === 'string' ? cypherResult.error : (cypherResult.error.message || JSON.stringify(cypherResult.error))}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto max-h-96 border border-white/[0.06] rounded-lg">
-                    <table className="w-full text-left text-xs font-mono text-[#d4d0c8]">
-                      <thead className="bg-[#08080a] text-[#8e8a85] uppercase text-[10px] tracking-wider border-b border-white/[0.08]">
-                        <tr>
-                          {(cypherResult.headers || ['Result']).map((h, i) => (
-                            <th key={i} className="py-2.5 px-4">{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/[0.04] bg-[#0c0c0e]">
-                        {(cypherResult.rows || []).map((row, rIdx) => (
-                          <tr key={rIdx} className="hover:bg-white/[0.02] transition">
-                            {row.map((cell: any, cIdx: number) => (
-                              <td key={cIdx} className="py-2 px-4 whitespace-nowrap">
-                                {typeof cell === 'object' && cell !== null
-                                  ? JSON.stringify(cell)
-                                  : String(cell ?? 'null')}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  (() => {
+                    const rawRows = (Array.isArray(cypherResult.rows) && cypherResult.rows.length > 0)
+                      ? cypherResult.rows
+                      : (Array.isArray(cypherResult.data) ? cypherResult.data : []);
+
+                    if (!Array.isArray(rawRows) || rawRows.length === 0) {
+                      return (
+                        <div className="p-6 text-center text-xs font-mono text-[#8e8a85] bg-[#08080a] rounded-lg border border-white/[0.04]">
+                          QUERY EXECUTED SUCCESSFULLY - 0 ROWS RETURNED
+                        </div>
+                      );
+                    }
+
+                    const firstRow = rawRows[0];
+                    const isRowArray = Array.isArray(firstRow);
+                    const headers = (Array.isArray(cypherResult.headers) && cypherResult.headers.length > 0)
+                      ? cypherResult.headers
+                      : (isRowArray ? firstRow.map((_, i) => `Col ${i + 1}`) : (typeof firstRow === 'object' && firstRow !== null ? Object.keys(firstRow) : ['Result']));
+
+                    return (
+                      <div className="overflow-x-auto max-h-96 border border-white/[0.06] rounded-lg">
+                        <table className="w-full text-left text-xs font-mono text-[#d4d0c8]">
+                          <thead className="bg-[#08080a] text-[#8e8a85] uppercase text-[10px] tracking-wider border-b border-white/[0.08]">
+                            <tr>
+                              {headers.map((h, i) => (
+                                <th key={i} className="py-2.5 px-4 whitespace-nowrap">{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/[0.04] bg-[#0c0c0e]">
+                            {rawRows.map((row: any, rIdx: number) => {
+                              const cells: any[] = Array.isArray(row)
+                                ? row
+                                : (typeof row === 'object' && row !== null ? headers.map((h) => row[h]) : [row]);
+
+                              return (
+                                <tr key={rIdx} className="hover:bg-white/[0.02] transition">
+                                  {cells.map((cell: any, cIdx: number) => {
+                                    let displayVal = 'null';
+                                    if (cell !== null && cell !== undefined) {
+                                      if (typeof cell === 'object') {
+                                        if (cell.properties) {
+                                          displayVal = cell.properties.name || cell.properties.description || JSON.stringify(cell.properties);
+                                        } else {
+                                          displayVal = JSON.stringify(cell);
+                                        }
+                                      } else {
+                                        displayVal = String(cell);
+                                      }
+                                    }
+                                    return (
+                                      <td key={cIdx} className="py-2 px-4 whitespace-nowrap">
+                                        {displayVal}
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()
                 )}
               </div>
             )}

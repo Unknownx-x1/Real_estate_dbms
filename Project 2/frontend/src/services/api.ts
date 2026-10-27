@@ -177,6 +177,7 @@ export interface CypherQueryResult {
   success: boolean;
   headers?: string[];
   rows?: any[][];
+  data?: any[];
   metadata?: string[];
   executionTimeMs?: number;
   error?: {

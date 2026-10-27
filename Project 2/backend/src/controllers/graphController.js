@@ -191,7 +191,8 @@ async function executeCypherQuery(req, res, next) {
         return res.status(200).json({
             success: true,
             headers: result.headers,
-            rows: result.data,
+            rows: result.rows,
+            data: result.data,
             metadata: result.metadata,
             executionTimeMs: result.executionTimeMs
         });

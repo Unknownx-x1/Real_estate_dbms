@@ -65,10 +65,38 @@ async function queryGraph(cypher, params = {}) {
     const result = await activeGraph.query(cypher, { params });
     const elapsedMs = Number((performance.now() - start).toFixed(2));
 
+    let headers = Array.isArray(result.headers) && result.headers.length > 0 ? [...result.headers] : [];
+    let rows = [];
+
+    if (Array.isArray(result.data) && result.data.length > 0) {
+        const first = result.data[0];
+        if (Array.isArray(first)) {
+            if (headers.length === 0) {
+                headers = first.map((_, idx) => `Col ${idx + 1}`);
+            }
+            rows = result.data;
+        } else if (typeof first === 'object' && first !== null) {
+            if (headers.length === 0) {
+                headers = Object.keys(first);
+            }
+            rows = result.data.map(obj => headers.map(h => {
+                const val = obj[h];
+                if (val && typeof val === 'object' && val.properties) {
+                    return val.properties.name || val.properties.description || val.properties.id || JSON.stringify(val.properties);
+                }
+                return val;
+            }));
+        } else {
+            headers = ['Result'];
+            rows = result.data.map(val => [val]);
+        }
+    }
+
     return {
         data: result.data || [],
+        rows,
+        headers,
         metadata: result.metadata || [],
-        headers: result.headers || [],
         executionTimeMs: elapsedMs,
     };
 }
